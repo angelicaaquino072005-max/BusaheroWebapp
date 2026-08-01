@@ -1,7 +1,6 @@
 import {
   IconMap,
   IconRoute,
-  IconSeat,
   IconWallet,
   IconFlag,
   IconEye,
@@ -13,7 +12,6 @@ import {
 export const primaryNav = [
   { href: "/", label: "Live Tracking", title: "Live Bus Tracking", icon: IconMap },
   { href: "/route-planner", label: "Route Planner", title: "Route Planner", icon: IconRoute },
-  { href: "/seat-availability", label: "Seat Availability", title: "Seat Availability", icon: IconSeat },
   { href: "/fare-calculator", label: "Fare Calculator", title: "Fare Calculator", icon: IconWallet },
 ];
 
