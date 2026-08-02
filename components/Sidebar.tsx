@@ -39,11 +39,11 @@ export default function Sidebar({ open, onClose }) {
         />
       )}
 
-      <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-slate-200 bg-white transition-transform duration-200 lg:static lg:z-0 lg:translate-x-0 ${
-          open ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
+     <aside
+  className={`fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-slate-200 bg-white transition-transform duration-200 ${
+    open ? "translate-x-0" : "-translate-x-full"
+  }`}
+>
        <div className="flex items-center justify-between gap-2 border-b border-slate-100 bg-brand px-5 py-5">
   <Link href="/" className="flex items-center" onClick={onClose}>
     <Image
@@ -54,6 +54,9 @@ export default function Sidebar({ open, onClose }) {
       className="h-12 w-auto rounded-lg object-contain"
     />
   </Link>
+  <div>
+            <div className="brand-name">BUSAhero</div>
+          </div>
   <button
     aria-label="Close menu"
     onClick={onClose}

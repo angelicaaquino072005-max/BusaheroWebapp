@@ -11,9 +11,9 @@ export default function Header({ onMenuClick }) {
     <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-slate-200 bg-brand px-4 py-3.5 text-white sm:px-6">
       <div className="flex min-w-0 items-center gap-3">
         <button
-          aria-label="Open menu"
+          aria-label="Toggle menu"
           onClick={onMenuClick}
-          className="rounded-md p-1.5 hover:bg-white/10 lg:hidden"
+          className="rounded-md p-1.5 hover:bg-white/10"
         >
           <IconMenu size={22} />
         </button>
