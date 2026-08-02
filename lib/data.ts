@@ -18,7 +18,6 @@ export const municipalities = [
   { id: "candelaria", name: "Candelaria", lat: 15.6125, lng: 119.9375 },
   { id: "santa-cruz", name: "Santa Cruz", lat: 15.6589, lng: 119.9211 },
 ];
-
 const byId = Object.fromEntries(municipalities.map((m) => [m.id, m]));
 export const getMunicipality = (id) => byId[id];
 

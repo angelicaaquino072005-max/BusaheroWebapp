@@ -2,12 +2,15 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
-import L, { LatLngTuple } from "leaflet";
+import L from "leaflet";
 import { ref, onValue } from "firebase/database";
 import { db } from "@/lib/firebase";
-import { busLines, municipalities, getMunicipality, haversineKm } from "@/lib/data";
+import { busLines, municipalities, haversineKm } from "@/lib/data";
+import {  olongapoToSantaCruzRoute } from "@/lib/routes";
+import type { LatLngTuple } from "leaflet";
 import BusInfoCard from "@/components/BusInfoCard";
 
+const routePositions = olongapoToSantaCruzRoute as LatLngTuple[];
 const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
 
 function busIcon(color) {
@@ -32,7 +35,7 @@ function ZoomControls() {
   return (
     <div className="absolute bottom-24 right-4 z-[400] flex flex-col gap-2 lg:bottom-4">
       <button
-        onClick={() => map.setView([14.98, 120.05], 9)}
+        onClick={() => map.setView([15.24, 120.1], 9)}
         aria-label="Recenter map"
         className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-md hover:bg-slate-50"
       >
@@ -57,13 +60,6 @@ function ZoomControls() {
 }
 
 // Subscribes to /buses in Firebase Realtime Database.
-// Expected shape per bus (adjust field names to match your mobile app's writes):
-// {
-//   lineId: "genesis", from: "Iba", to: "Olongapo City",
-//   lat: 15.298, lng: 119.965, speedKph: 45,
-//   status: "moving" | "stopped", stoppedSeconds: 0,
-//   lastUpdatedAt: <server timestamp in ms>
-// }
 function useLiveBuses() {
   const [buses, setBuses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -144,7 +140,7 @@ export default function BusMap() {
   return (
     <div className="relative h-full w-full">
       <MapContainer
-        center={[14.98, 120.05]}
+        center={[15.24, 120.1]}
         zoom={9}
         scrollWheelZoom
         zoomControl={false}
@@ -155,19 +151,11 @@ export default function BusMap() {
           url={`https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`}
         />
 
-        {busLines.map((line) => {
-          const positions: LatLngTuple[] = line.routeIds
-            .map((id) => getMunicipality(id))
-            .filter(Boolean)
-            .map((m) => [m.lat, m.lng] as LatLngTuple);
-          return (
-            <Polyline
-              key={line.id}
-              positions={positions}
-              pathOptions={{ color: line.color, weight: 4, opacity: 0.85 }}
-            />
-          );
-        })}
+        {/* Actual road-based route, Olongapo City -> Santa Cruz */}
+        <Polyline
+          positions={routePositions}
+          pathOptions={{ color: "#1e3a8a", weight: 4, opacity: 0.85 }}
+        />
 
         {municipalities.map((m) => (
           <Marker
