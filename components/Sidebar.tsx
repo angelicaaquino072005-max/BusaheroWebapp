@@ -44,27 +44,24 @@ export default function Sidebar({ open, onClose }) {
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between gap-2 border-b border-slate-100 bg-brand px-5 py-5">
-          <Link href="/" className="flex items-center gap-2" onClick={onClose}>
-            <Image
-              src="/busahero-logo.jpg"
-              alt="BUSahero"
-              width={36}
-              height={36}
-              className="rounded-lg"
-            />
-            <span className="text-lg font-bold tracking-tight text-white">
-              BUS<span className="font-light">ahero</span>
-            </span>
-          </Link>
-          <button
-            aria-label="Close menu"
-            onClick={onClose}
-            className="rounded-md p-1 text-white/80 hover:bg-white/10 lg:hidden"
-          >
-            <IconX size={20} />
-          </button>
-        </div>
+       <div className="flex items-center justify-between gap-2 border-b border-slate-100 bg-brand px-5 py-5">
+  <Link href="/" className="flex items-center" onClick={onClose}>
+    <Image
+      src="/busahero-logo.jpg"
+      alt="BUSahero"
+      width={220}
+      height={220}
+      className="h-12 w-auto rounded-lg object-contain"
+    />
+  </Link>
+  <button
+    aria-label="Close menu"
+    onClick={onClose}
+    className="rounded-md p-1 text-white/80 hover:bg-white/10 lg:hidden"
+  >
+    <IconX size={20} />
+  </button>
+</div>
 
         <nav className="flex-1 overflow-y-auto px-3 py-4">
           <div className="space-y-1">
