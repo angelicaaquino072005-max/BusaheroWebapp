@@ -3,17 +3,20 @@
 // Zambales <-> Olongapo City corridor, for demo purposes only.
 
 export const municipalities = [
-  { id: "iba", name: "Iba", lat: 15.3298, lng: 119.9682 },
-  { id: "botolan", name: "Botolan", lat: 15.267, lng: 119.9615 },
-  { id: "cabangan", name: "Cabangan", lat: 15.1235, lng: 119.9553 },
-  { id: "san-felipe", name: "San Felipe", lat: 15.0899, lng: 119.9008 },
-  { id: "san-narciso", name: "San Narciso", lat: 15.0333, lng: 119.9 },
-  { id: "san-antonio", name: "San Antonio", lat: 14.9667, lng: 120.0 },
-  { id: "san-marcelino", name: "San Marcelino", lat: 14.9382, lng: 120.15 },
-  { id: "castillejos", name: "Castillejos", lat: 14.9333, lng: 120.1932 },
-  { id: "subic", name: "Subic", lat: 14.8667, lng: 120.2333 },
-  { id: "olongapo", name: "Olongapo City", lat: 14.8294, lng: 120.2828 },
-  { id: "santa-cruz", name: "Santa Cruz", lat: 15.7667, lng: 119.9167 },
+  { id: "iba", name: "Iba", lat: 15.3286, lng: 119.9893 },
+  { id: "botolan", name: "Botolan", lat: 15.2063, lng: 120.0667 },
+  { id: "cabangan", name: "Cabangan", lat: 15.1384, lng: 120.0628 },
+  { id: "san-felipe", name: "San Felipe", lat: 15.0686, lng: 120.0695 },
+  { id: "san-narciso", name: "San Narciso", lat: 15.0517, lng: 120.0583 },
+  { id: "san-antonio", name: "San Antonio", lat: 14.9871, lng: 120.0636 },
+  { id: "san-marcelino", name: "San Marcelino", lat: 14.9472, lng: 120.1728 },
+  { id: "castillejos", name: "Castillejos", lat: 14.9429, lng: 120.1959 },
+  { id: "subic", name: "Subic", lat: 14.8961, lng: 120.2533 },
+  { id: "olongapo", name: "Olongapo City", lat: 14.8400, lng: 120.2670 },
+  { id: "palauig", name: "Palauig", lat: 15.4038, lng: 120.0069 },
+  { id: "masinloc", name: "Masinloc", lat: 15.5350, lng: 119.9650 },
+  { id: "candelaria", name: "Candelaria", lat: 15.6125, lng: 119.9375 },
+  { id: "santa-cruz", name: "Santa Cruz", lat: 15.6589, lng: 119.9211 },
 ];
 
 const byId = Object.fromEntries(municipalities.map((m) => [m.id, m]));

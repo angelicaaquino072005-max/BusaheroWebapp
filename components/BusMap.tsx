@@ -22,7 +22,7 @@ function busIcon(color) {
 
 const userIcon = L.divIcon({
   className: "",
-  html: `<div class="user-pin"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.5 19a6 6 0 0 1 11 0"/></svg></div>`,
+  html: `<div class="location-marker"><div class="location-marker-pulse"></div><div class="location-marker-dot"></div></div>`,
   iconSize: [34, 34],
   iconAnchor: [17, 17],
 });
