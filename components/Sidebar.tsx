@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { primaryNav, infoNav } from "@/lib/nav";
-import { IconBus, IconX } from "@/components/Icons";
-import DiscountCard from "@/components/DiscountCard";
+import { IconX } from "@/components/Icons";
 
 function NavItem({ item, pathname, onNavigate }) {
   const active = pathname === item.href;
@@ -45,11 +45,15 @@ export default function Sidebar({ open, onClose }) {
         }`}
       >
         <div className="flex items-center justify-between gap-2 border-b border-slate-100 bg-brand px-5 py-5">
-          <Link href="/" className="flex items-center gap-2 text-white" onClick={onClose}>
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/15">
-              <IconBus size={20} />
-            </span>
-            <span className="text-lg font-bold tracking-tight">
+          <Link href="/" className="flex items-center gap-2" onClick={onClose}>
+            <Image
+              src="/busahero-logo.jpg"
+              alt="BUSahero"
+              width={36}
+              height={36}
+              className="rounded-lg"
+            />
+            <span className="text-lg font-bold tracking-tight text-white">
               BUS<span className="font-light">ahero</span>
             </span>
           </Link>
@@ -79,7 +83,6 @@ export default function Sidebar({ open, onClose }) {
         </nav>
 
         <div className="space-y-3 border-t border-slate-100 p-4">
-          <DiscountCard />
           <p className="text-center text-xs text-slate-400">BUSahero v1.0</p>
         </div>
       </aside>
