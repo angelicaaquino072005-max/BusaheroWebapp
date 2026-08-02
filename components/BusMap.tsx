@@ -8,7 +8,7 @@ import { db } from "@/lib/firebase";
 import { busLines, municipalities, getMunicipality, haversineKm } from "@/lib/data";
 import BusInfoCard from "@/components/BusInfoCard";
 
-const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY;
+const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
 
 function busIcon(color) {
   return L.divIcon({
