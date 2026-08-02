@@ -121,7 +121,7 @@ export default function RoutePlannerPage() {
   );
 }
 
-function LegRow({ icon: Icon, label, value, status, accent }) {
+function LegRow({ icon: Icon, label, value, status, accent = false }) {
   return (
     <div className="flex items-center gap-3 px-4 py-3.5">
       <span
