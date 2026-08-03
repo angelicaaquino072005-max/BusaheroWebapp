@@ -59,6 +59,26 @@ function ZoomControls() {
   );
 }
 
+// Pulls a numeric lat/lng out of a bus record regardless of how the
+// upstream device/app named or typed the fields (string vs number,
+// lat/lng vs latitude/longitude, or nested under location/gps/coords).
+function extractLatLng(value: any): { lat: number | null; lng: number | null } {
+  const source =
+    value?.location ?? value?.gps ?? value?.coords ?? value?.position ?? value;
+
+  const rawLat = source?.lat ?? source?.latitude ?? source?.Lat ?? source?.Latitude;
+  const rawLng =
+    source?.lng ?? source?.lon ?? source?.long ?? source?.longitude ?? source?.Lng;
+
+  const lat = rawLat !== undefined && rawLat !== null ? Number(rawLat) : NaN;
+  const lng = rawLng !== undefined && rawLng !== null ? Number(rawLng) : NaN;
+
+  return {
+    lat: Number.isFinite(lat) ? lat : null,
+    lng: Number.isFinite(lng) ? lng : null,
+  };
+}
+
 // Subscribes to /buses in Firebase Realtime Database.
 function useLiveBuses() {
   const [buses, setBuses] = useState([]);
@@ -70,19 +90,26 @@ function useLiveBuses() {
       busesRef,
       (snapshot) => {
         const data = snapshot.val() || {};
+        // Helpful while debugging — remove once buses are showing.
+        console.log("Firebase /buses raw data:", data);
+
         const list = Object.entries(data).map(([id, value]: [string, any]) => {
           const lastUpdatedAt = value.lastUpdatedAt ?? Date.now();
           const lastUpdateMinutesAgo = Math.max(
             0,
             Math.round((Date.now() - lastUpdatedAt) / 60000)
           );
+          const { lat, lng } = extractLatLng(value);
           return {
             id,
             label: value.label ?? id,
             ...value,
+            lat,
+            lng,
             lastUpdateMinutesAgo,
           };
         });
+        console.log("Parsed bus list:", list);
         setBuses(list);
         setLoading(false);
       },
