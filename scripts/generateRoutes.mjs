@@ -22,7 +22,7 @@ const waypoints = [
 async function fetchRoute(coords) {
   const body = {
     coordinates: coords.map(([lat, lng]) => [lng, lat]),
-    radiuses: coords.map(() => 5000), // 5km radius kada punto
+    radiuses: coords.map(() => 5000), // 5km search radius kada waypoint
   };
   const res = await fetch(
     "https://api.openrouteservice.org/v2/directions/driving-car/geojson",
@@ -44,6 +44,13 @@ async function fetchRoute(coords) {
     durationMin: (feature.properties.summary.duration / 60).toFixed(0),
   };
 }
+
+fetchRoute(waypoints).then((result) => {
+  console.log(`\n// Distance: ${result.distanceKm} km, ~${result.durationMin} mins`);
+  console.log(`\nexport const olongapoToSantaCruzRoute = ${JSON.stringify(result.coordinates)};`);
+}).catch((err) => {
+  console.error(err.message);
+});
 
 fetchRoute(waypoints).then((result) => {
   console.log(`\n// Distance: ${result.distanceKm} km, ~${result.durationMin} mins`);
