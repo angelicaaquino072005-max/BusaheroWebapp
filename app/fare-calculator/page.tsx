@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { municipalities, estimateDistanceKm } from "@/lib/data";
 import { useDiscount } from "@/components/DiscountContext";
 import { useFareSettings } from "@/hook/useFareSettings";
@@ -14,11 +14,12 @@ function peso(n) {
 export default function FareCalculatorPage() {
   const [originId, setOriginId] = useState("");
   const [destinationId, setDestinationId] = useState("");
+  const [hasCalculated, setHasCalculated] = useState(false);
   const [result, setResult] = useState(null);
   const { discountApplied } = useDiscount();
   const { fareSettings, loading } = useFareSettings();
 
-  const calculate = () => {
+  const runCalculation = () => {
     if (!originId || !destinationId || originId === destinationId) {
       setResult(null);
       return;
@@ -34,6 +35,20 @@ export default function FareCalculatorPage() {
     const discount = discountApplied ? base * (discountPercent / 100) : 0;
     setResult({ km, base, discount, total: base - discount, discountPercent });
   };
+
+  const handleCalculateClick = () => {
+    setHasCalculated(true);
+    runCalculation();
+  };
+
+  // Auto-recompute whenever discount toggle, live fareSettings, or the
+  // selected trip changes — but only after the user has calculated once.
+  useEffect(() => {
+    if (hasCalculated) {
+      runCalculation();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [discountApplied, fareSettings, originId, destinationId]);
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6">
@@ -66,7 +81,7 @@ export default function FareCalculatorPage() {
         </div>
 
         <button
-          onClick={calculate}
+          onClick={handleCalculateClick}
           className="mt-4 w-full rounded-xl bg-blue-50 py-3 text-sm font-semibold text-brand transition-colors hover:bg-brand hover:text-white"
         >
           Calculate Fare
