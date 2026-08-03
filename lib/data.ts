@@ -231,34 +231,44 @@ export const seatTrips = [
   },
 ];
 
-// Approximate distance (km) between municipalities, used by the fare
-// calculator. This is a simplified lookup along the main corridor,
-// not a true road-distance matrix.
-const corridorOrder = [
-  "iba",
-  "botolan",
-  "cabangan",
-  "san-felipe",
-  "san-narciso",
-  "san-antonio",
-  "san-marcelino",
-  "castillejos",
-  "subic",
-  "olongapo",
-];
+// ---------------------------------------------------------------------
+// Distance calculation, used by the fare calculator.
+//
+// FIX (previously): distance was looked up from a hand-typed
+// `corridorOrder` array that only listed 10 of the 14 municipalities
+// above. Any trip involving the 4 missing towns — including
+// "santa-cruz", the actual endpoint of the Olongapo <-> Santa Cruz
+// corridor this app is built around — silently fell through to
+// `oi === -1 || di === -1` and returned 0 km, which made the fare
+// calculator quietly charge the flat base fare for those trips.
+//
+// Fix: derive distance from the lat/lng already stored on every
+// municipality via the haversine formula (below), scaled up slightly
+// to approximate road distance vs. straight-line distance. This works
+// for any pair of municipalities automatically, so it can't silently
+// go stale again when new towns are added to the list.
+// ---------------------------------------------------------------------
 
-const segmentKm = [22, 18, 10, 8, 9, 16, 8, 10, 9]; // between consecutive corridor stops
+// Straight-line (haversine) distance underestimates actual road
+// distance because the highway follows the coast/terrain rather than
+// a straight line. 1.15x is a reasonable approximation for this
+// corridor; tune if you get real road-distance data later.
+const ROAD_DISTANCE_FACTOR = 1.15;
 
 export function estimateDistanceKm(originId, destinationId) {
-  const oi = corridorOrder.indexOf(originId);
-  const di = corridorOrder.indexOf(destinationId);
-  if (oi === -1 || di === -1 || oi === di) return 0;
-  const [start, end] = oi < di ? [oi, di] : [di, oi];
-  return segmentKm.slice(start, end).reduce((a, b) => a + b, 0);
-}
+  const origin = getMunicipality(originId);
+  const destination = getMunicipality(destinationId);
+  if (!origin || !destination || originId === destinationId) return 0;
 
-export const FARE_BASE = 15; // PHP, first 5 km
-export const FARE_PER_KM = 2.25; // PHP per km beyond the base
+  const straightLineKm = haversineKm(
+    origin.lat,
+    origin.lng,
+    destination.lat,
+    destination.lng
+  );
+
+  return Math.round(straightLineKm * ROAD_DISTANCE_FACTOR * 10) / 10;
+}
 
 // Haversine distance in km between two lat/lng points.
 export function haversineKm(lat1, lng1, lat2, lng2) {
