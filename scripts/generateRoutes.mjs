@@ -1,22 +1,21 @@
 const API_KEY = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjUwNWNmM2YxZWNkZTQ3NzhiMjYyOTBhZGY5MDAyZjUzIiwiaCI6Im11cm11cjY0In0=";
 
-// Ayon sa corridorOrder mo — Olongapo papuntang Santa Cruz
-// Gamitin ang mga updated lat/lng mula sa lib/data.ts
 const waypoints = [
-  [14.8400, 120.2670], // olongapo
-  [14.8961, 120.2533], // subic
-  [14.9429, 120.1959], // castillejos
-  [14.9472, 120.1728], // san-marcelino
-  [14.9871, 120.0636], // san-antonio
-  [15.0517, 120.0583], // san-narciso
-  [15.0686, 120.0695], // san-felipe
-  [15.1384, 120.0628], // cabangan
-  [15.2063, 120.0667], // botolan
-  [15.3286, 119.9893], // iba
-  [15.4038, 120.0069], // palauig
-  [15.5350, 119.9650], // masinloc
-  [15.6125, 119.9375], // candelaria
-  [15.6589, 119.9211], // santa-cruz
+  [14.838879, 120.283440],
+  [14.878507, 120.234398],
+  [14.932290, 120.200586],
+  [14.973710, 120.155868],
+  [14.948246, 120.089720],
+  [15.015925, 120.079307],
+  [15.060799, 120.069908],
+  [15.111030, 120.064008],
+  [15.159232, 120.055168],
+  [15.288350, 120.026484],
+  [15.3203357, 119.9873523],
+  [15.417190, 119.953236],
+  [15.532287, 119.957898],
+  [15.606962, 119.937914],
+  [15.773003, 119.905279],
 ];
 
 async function fetchRoute(coords) {
@@ -50,9 +49,4 @@ fetchRoute(waypoints).then((result) => {
   console.log(`\nexport const olongapoToSantaCruzRoute = ${JSON.stringify(result.coordinates)};`);
 }).catch((err) => {
   console.error(err.message);
-});
-
-fetchRoute(waypoints).then((result) => {
-  console.log(`\n// Distance: ${result.distanceKm} km, ~${result.durationMin} mins`);
-  console.log(`\nexport const olongapoToSantaCruzRoute = ${JSON.stringify(result.coordinates)};`);
 });
