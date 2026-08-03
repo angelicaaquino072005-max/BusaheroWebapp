@@ -79,6 +79,23 @@ function extractLatLng(value: any): { lat: number | null; lng: number | null } {
   };
 }
 
+// Pulls a numeric speed (km/h) out of a bus record regardless of the
+// upstream field name (speedKph, speed, velocity, kph, etc.) or type
+// (string vs number).
+function extractSpeedKph(value: any): number | null {
+  const raw =
+    value?.speedKph ??
+    value?.speedKmh ??
+    value?.speed_kmh ??
+    value?.speed ??
+    value?.velocityKph ??
+    value?.velocity ??
+    value?.kph;
+
+  const speed = raw !== undefined && raw !== null ? Number(raw) : NaN;
+  return Number.isFinite(speed) ? speed : null;
+}
+
 // Subscribes to /buses in Firebase Realtime Database.
 function useLiveBuses() {
   const [buses, setBuses] = useState([]);
@@ -119,12 +136,14 @@ function useLiveBuses() {
             Math.round((Date.now() - lastUpdatedAt) / 60000)
           );
           const { lat, lng } = extractLatLng(value);
+          const speedKph = extractSpeedKph(value);
           return {
             id,
-            label: value.label ?? id,
+            label: value.label ?? value.BusName ?? id,
             ...value,
             lat,
             lng,
+            speedKph,
             lastUpdateMinutesAgo,
           };
         });

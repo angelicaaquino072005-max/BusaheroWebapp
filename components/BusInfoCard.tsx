@@ -26,10 +26,28 @@ function Row({ icon: Icon, iconBg, iconColor, label, value }) {
 
 export default function BusInfoCard({ bus, distanceKm, etaMinutes, onClose }) {
   const isFar = distanceKm != null && distanceKm > 5;
-  const statusLabel =
-    bus.status === "stopped"
-      ? `${Math.floor(bus.stoppedSeconds / 60)}m ${bus.stoppedSeconds % 60}s stopped`
-      : "Moving";
+  const hasSpeed = typeof bus.speedKph === "number" && Number.isFinite(bus.speedKph);
+  const isStopped = String(bus.status ?? "").toLowerCase() === "stopped";
+
+  const stoppedSeconds = Number(bus.stoppedSeconds);
+  const hasStoppedDuration = Number.isFinite(stoppedSeconds);
+
+  const statusLabel = isStopped
+    ? hasStoppedDuration
+      ? `${Math.floor(stoppedSeconds / 60)}m ${stoppedSeconds % 60}s stopped`
+      : "Stopped"
+    : "Moving";
+
+  const etaLabel =
+    etaMinutes != null
+      ? `${etaMinutes} mins`
+      : !hasSpeed
+      ? "Speed data unavailable"
+      : bus.speedKph === 0
+      ? "Bus is stopped"
+      : distanceKm == null
+      ? "Enable location for ETA"
+      : "Calculating…";
 
   return (
     <div className="absolute inset-x-0 bottom-0 z-[500] rounded-t-2xl border-t border-slate-200 bg-white p-5 shadow-[0_-8px_24px_rgba(15,23,42,0.15)] lg:inset-x-auto lg:bottom-4 lg:left-4 lg:w-80 lg:rounded-2xl lg:border">
@@ -50,12 +68,12 @@ export default function BusInfoCard({ bus, distanceKm, etaMinutes, onClose }) {
           iconBg="bg-amber-50"
           iconColor="text-amber-500"
           label="ETA"
-          value={etaMinutes == null ? "Infinity mins" : `${etaMinutes} mins`}
+          value={etaLabel}
         />
         <Row
           icon={IconAlertTriangle}
-          iconBg={bus.status === "stopped" ? "bg-red-50" : "bg-emerald-50"}
-          iconColor={bus.status === "stopped" ? "text-red-500" : "text-emerald-500"}
+          iconBg={isStopped ? "bg-red-50" : "bg-emerald-50"}
+          iconColor={isStopped ? "text-red-500" : "text-emerald-500"}
           label="Status"
           value={statusLabel}
         />
@@ -77,7 +95,7 @@ export default function BusInfoCard({ bus, distanceKm, etaMinutes, onClose }) {
           iconBg="bg-blue-50"
           iconColor="text-brand"
           label="Speed"
-          value={`${bus.speedKph} km/h`}
+          value={hasSpeed ? `${bus.speedKph} km/h` : "Speed data unavailable"}
         />
         <Row
           icon={IconClock}
