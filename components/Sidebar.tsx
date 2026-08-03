@@ -45,14 +45,17 @@ export default function Sidebar({ open, onClose }) {
         }`}
       >
         <div className="flex items-center justify-between gap-2 border-b border-slate-100 bg-brand px-5 py-5">
-          <Link href="/" className="flex items-center" onClick={onClose}>
+          <Link href="/" className="flex items-center gap-2" onClick={onClose}>
             <Image
               src="/busahero-logo.jpg"
               alt="BUSahero"
               width={220}
               height={220}
-              className="h-12 w-auto rounded-lg object-contain"
+              className="h-10 w-10 shrink-0 rounded-lg object-contain"
             />
+            <span className="text-lg font-bold tracking-tight text-white">
+              BUS<span className="font-light">ahero</span>
+            </span>
           </Link>
           <button
             aria-label="Close menu"
