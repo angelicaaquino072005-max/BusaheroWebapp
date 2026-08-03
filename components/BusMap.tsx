@@ -79,6 +79,16 @@ function extractLatLng(value: any): { lat: number | null; lng: number | null } {
   };
 }
 
+// Formats a raw bus id like "bus1" or "Bus3" into a clean "Bus 1" style label.
+function formatBusLabel(id: string): string {
+  const match = id.match(/^([a-zA-Z]+)\s*(\d+)$/);
+  if (match) {
+    const word = match[1].charAt(0).toUpperCase() + match[1].slice(1).toLowerCase();
+    return `${word} ${match[2]}`;
+  }
+  return id;
+}
+
 // Pulls a numeric speed (km/h) out of a bus record regardless of the
 // upstream field name (speedKph, speed, velocity, kph, etc.) or type
 // (string vs number).
@@ -139,7 +149,7 @@ function useLiveBuses() {
           const speedKph = extractSpeedKph(value);
           return {
             id,
-            label: value.label ?? value.BusName ?? id,
+            label: value.label ?? formatBusLabel(id),
             ...value,
             lat,
             lng,
