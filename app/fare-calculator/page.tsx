@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { municipalities, estimateDistanceKm, FARE_BASE, FARE_PER_KM } from "@/lib/data";
+import { municipalities, estimateDistanceKm } from "@/lib/data";
 import { useDiscount } from "@/components/DiscountContext";
+import { useFareSettings } from "@/hook/useFareSettings";
 import DiscountCard from "@/components/DiscountCard";
 import { IconBuilding, IconInfo } from "@/components/Icons";
 
@@ -15,6 +16,7 @@ export default function FareCalculatorPage() {
   const [destinationId, setDestinationId] = useState("");
   const [result, setResult] = useState(null);
   const { discountApplied } = useDiscount();
+  const { fareSettings, loading } = useFareSettings();
 
   const calculate = () => {
     if (!originId || !destinationId || originId === destinationId) {
@@ -22,9 +24,15 @@ export default function FareCalculatorPage() {
       return;
     }
     const km = estimateDistanceKm(originId, destinationId);
-    const base = km <= 5 ? FARE_BASE : FARE_BASE + (km - 5) * FARE_PER_KM;
-    const discount = discountApplied ? base * 0.2 : 0;
-    setResult({ km, base, discount, total: base - discount });
+    const { baseDistanceKm, baseFare, perKmRate, discountPercent } = fareSettings;
+
+    const base =
+      km <= baseDistanceKm
+        ? baseFare
+        : baseFare + (km - baseDistanceKm) * perKmRate;
+
+    const discount = discountApplied ? base * (discountPercent / 100) : 0;
+    setResult({ km, base, discount, total: base - discount, discountPercent });
   };
 
   return (
@@ -32,6 +40,9 @@ export default function FareCalculatorPage() {
       <div className="mb-5">
         <h2 className="text-lg font-semibold text-slate-800">Fare Calculator</h2>
         <p className="text-sm text-slate-500">Calculate the estimated fare for your trip.</p>
+        {loading && (
+          <p className="mt-1 text-xs text-slate-400">Loading current fare rates…</p>
+        )}
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card sm:p-6">
@@ -80,7 +91,9 @@ export default function FareCalculatorPage() {
             </div>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-700">Discount (20%)</p>
+                <p className="text-sm font-medium text-slate-700">
+                  Discount ({result?.discountPercent ?? fareSettings.discountPercent}%)
+                </p>
                 <p className="text-xs text-slate-400">Regular Passenger Discount</p>
               </div>
               <p className="text-sm font-semibold text-emerald-600">
