@@ -93,7 +93,26 @@ function useLiveBuses() {
         // Helpful while debugging — remove once buses are showing.
         console.log("Firebase /buses raw data:", data);
 
-        const list = Object.entries(data).map(([id, value]: [string, any]) => {
+        // The data isn't a flat list of buses — it's grouped one level
+        // deeper, e.g. { north: { bus1: {...} }, south: { bus2: {...} } }.
+        // Flatten every group into a single array of bus records first.
+        const flatEntries: [string, any][] = [];
+        Object.entries(data).forEach(([groupKey, groupValue]: [string, any]) => {
+          const looksLikeBus =
+            groupValue && (groupValue.lat !== undefined || groupValue.latitude !== undefined);
+
+          if (looksLikeBus) {
+            // Already flat: /buses/busId
+            flatEntries.push([groupKey, groupValue]);
+          } else if (groupValue && typeof groupValue === "object") {
+            // Nested: /buses/direction/busId
+            Object.entries(groupValue).forEach(([busId, busValue]: [string, any]) => {
+              flatEntries.push([busId, { direction: groupKey, ...busValue }]);
+            });
+          }
+        });
+
+        const list = flatEntries.map(([id, value]: [string, any]) => {
           const lastUpdatedAt = value.lastUpdatedAt ?? Date.now();
           const lastUpdateMinutesAgo = Math.max(
             0,
