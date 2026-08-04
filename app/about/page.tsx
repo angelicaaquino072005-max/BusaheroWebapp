@@ -18,8 +18,8 @@ export default function AboutPage() {
           <h2 className="mb-3 text-lg font-bold text-slate-800">About the Application</h2>
           <p className="text-sm leading-relaxed text-slate-600">
             BUSahero is a web-based real-time bus tracking and arrival estimation
-            application developed to help commuters monitor bus locations, estimate
-            arrival times, check seat availability, and calculate fares for trips
+            application developed to help commuters monitor bus locations,
+            estimate arrival times, check seat availability, and calculate fares for trips
             between Olongapo City and Zambales.
           </p>
         </div>
@@ -43,12 +43,14 @@ export default function AboutPage() {
       </div>
 
       <h3 className="mb-4 mt-8 text-base font-bold text-slate-800">Thesis Adviser</h3>
-      <div className="max-w-xs rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-card">
-        <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 text-brand">
-          <IconUserCircle size={30} />
-        </span>
-        <p className="mt-3 text-sm font-semibold text-slate-800">{adviser.name}</p>
-        <p className="mt-0.5 text-xs text-slate-500">{adviser.role}</p>
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-card">
+          <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 text-brand">
+            <IconUserCircle size={30} />
+          </span>
+          <p className="mt-3 text-sm font-semibold text-slate-800">{adviser.name}</p>
+          <p className="mt-0.5 text-xs text-slate-500">{adviser.role}</p>
+        </div>
       </div>
 
       <h3 className="mb-4 mt-8 text-base font-bold text-slate-800">Academic Information</h3>
