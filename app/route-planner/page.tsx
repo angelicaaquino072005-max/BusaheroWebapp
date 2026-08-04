@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useLiveBuses } from "@/lib/useLiveBuses";
 import { buildRouteProgress } from "@/lib/routePlanner";
 import {
@@ -33,7 +33,19 @@ export default function RoutePlannerPage() {
   const [index, setIndex] = useState(0);
   const [openStop, setOpenStop] = useState(null);
 
-  const routes = buses.map((bus) => buildRouteProgress(bus)).filter(Boolean);
+  // Remembers each bus's last known nearest-stop index across renders,
+  // so direction can be inferred from real movement instead of trusting
+  // a manually-set Firebase field.
+  const lastIndexRef = useRef<Record<string, number>>({});
+
+  const routes = buses
+    .map((bus) => {
+      const result = buildRouteProgress(bus, lastIndexRef.current[bus.id]);
+      if (!result) return null;
+      lastIndexRef.current[bus.id] = result.nearestIndex;
+      return result.progress;
+    })
+    .filter(Boolean);
 
   if (loading) {
     return (
@@ -96,13 +108,11 @@ export default function RoutePlannerPage() {
           </button>
         </div>
 
-        {/* Current / next leg detail */}
         <div className="mt-6 divide-y divide-slate-100 rounded-xl border border-slate-100">
           <LegRow icon={IconBuilding} label="Current Municipality" value={route.currentMunicipality} status="ARRIVING" />
           <LegRow icon={IconFlag} label="Next Municipality" value={route.nextMunicipality ?? "—"} status="UPCOMING" />
         </div>
 
-        {/* Full stop list */}
         <div className="mt-4 divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-100">
           {route.stops.map((stop) => {
             const isOpen = openStop === stop.id;
