@@ -245,7 +245,16 @@ export default function RoutePlannerPage() {
         )}
 
         <p className="mt-4 text-center text-xs text-slate-400">
-          Last updated {bus.lastUpdateMinutesAgo === 0 ? "just now" : `${bus.lastUpdateMinutesAgo}m ago`}
+          Last updated{" "}
+          {bus.lastUpdateAt
+            ? `${
+                bus.lastUpdateMinutesAgo === 0 ? "just now" : `${bus.lastUpdateMinutesAgo}m ago`
+              } (${new Date(bus.lastUpdateAt).toLocaleTimeString([], {
+                hour: "numeric",
+                minute: "2-digit",
+                second: "2-digit",
+              })})`
+            : "unavailable"}
         </p>
       </div>
     </div>

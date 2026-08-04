@@ -103,9 +103,15 @@ export default function BusInfoCard({ bus, distanceKm, etaMinutes, onClose }) {
           iconColor="text-slate-500"
           label="Last Update"
           value={
-            bus.lastUpdateMinutesAgo === 0
-              ? "Just now"
-              : `${bus.lastUpdateMinutesAgo}m ago`
+            bus.lastUpdateAt
+              ? `${
+                  bus.lastUpdateMinutesAgo === 0 ? "Just now" : `${bus.lastUpdateMinutesAgo}m ago`
+                } (${new Date(bus.lastUpdateAt).toLocaleTimeString([], {
+                  hour: "numeric",
+                  minute: "2-digit",
+                  second: "2-digit",
+                })})`
+              : "Unavailable"
           }
         />
       </div>
