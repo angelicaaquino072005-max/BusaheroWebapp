@@ -1,14 +1,36 @@
+import Image from "next/image";
 import BusIllustration from "@/components/BusIllustration";
 import { IconGraduation, IconBook, IconCalendar, IconUserCircle } from "@/components/Icons";
 
 const developers = [
-  { name: "Angelica Aquino", role: "UI/UX Designer" },
-  { name: "Krizia Mae F. Funiestas", role: "Lead Developer" },
-  { name: "Daisy Ann M. Magno", role: "Documentation" },
-  { name: "Rhonielyn Mhei B. Tolentino", role: "System Analyst" },
+  { name: "Angelica Aquino", role: "UI/UX Designer", photo: "/team/angelica.jpg" },
+  { name: "Krizia Mae F. Funiestas", role: "Lead Developer", photo: "/team/krizia.jpg" },
+  { name: "Daisy Ann M. Magno", role: "Documentation", photo: "/team/daisy_ann.jpg" },
+  { name: "Rhonielyn Mhei B. Tolentino", role: "System Analyst", photo: "/team/rhonielyn.jpg" },
 ];
 
-const adviser = { name: "Rowela Gongora, MCS", role: "Thesis Adviser" };
+const adviser = { name: "Rowela Gongora, MCS", role: "Thesis Adviser", photo: "/team/rowela.jpg" };
+
+function Avatar({ photo, name, bgClass, textClass }) {
+  if (photo) {
+    return (
+      <div className="mx-auto h-16 w-16 overflow-hidden rounded-full">
+        <Image
+          src={photo}
+          alt={name}
+          width={64}
+          height={64}
+          className="h-full w-full object-cover"
+        />
+      </div>
+    );
+  }
+  return (
+    <span className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full ${bgClass} ${textClass}`}>
+      <IconUserCircle size={30} />
+    </span>
+  );
+}
 
 export default function AboutPage() {
   return (
@@ -33,9 +55,12 @@ export default function AboutPage() {
             key={dev.name}
             className="rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-card"
           >
-            <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-violet-100 text-violet-400">
-              <IconUserCircle size={30} />
-            </span>
+            <Avatar
+              photo={dev.photo}
+              name={dev.name}
+              bgClass="bg-violet-100"
+              textClass="text-violet-400"
+            />
             <p className="mt-3 text-sm font-semibold text-slate-800">{dev.name}</p>
             <p className="mt-0.5 text-xs text-slate-500">{dev.role}</p>
           </div>
@@ -45,9 +70,12 @@ export default function AboutPage() {
       <h3 className="mb-4 mt-8 text-base font-bold text-slate-800">Thesis Adviser</h3>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         <div className="rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-card">
-          <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 text-brand">
-            <IconUserCircle size={30} />
-          </span>
+          <Avatar
+            photo={adviser.photo}
+            name={adviser.name}
+            bgClass="bg-blue-50"
+            textClass="text-brand"
+          />
           <p className="mt-3 text-sm font-semibold text-slate-800">{adviser.name}</p>
           <p className="mt-0.5 text-xs text-slate-500">{adviser.role}</p>
         </div>
