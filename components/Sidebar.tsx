@@ -67,7 +67,7 @@ export default function Sidebar({ open, onClose }) {
         </div>
 
         <nav className="flex-1 overflow-y-auto px-3 py-4">
-          {/* Primary nav (Live Tracking, Route Planner, Fare Calculator) — desktop only, since mobile already has the bottom tab bar for these */}
+          {/* Primary nav (Live Tracking, Route , Fare Calculator) — desktop only, since mobile already has the bottom tab bar for these */}
           <div className="hidden space-y-1 lg:block">
             {primaryNav.map((item) => (
               <NavItem key={item.href} item={item} pathname={pathname} onNavigate={onClose} />
