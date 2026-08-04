@@ -8,7 +8,7 @@ export default function Header({ onMenuClick }) {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-slate-200 bg-brand px-4 py-3.5 text-white sm:px-6">
+    <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-slate-200 bg-brand px-4 py-5 text-white sm:px-6">
       <div className="flex min-w-0 items-center gap-3">
         <button
           aria-label="Open menu"
