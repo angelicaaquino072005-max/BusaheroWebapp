@@ -14,20 +14,20 @@ const adviser = { name: "Rowela Gongora, MCS", role: "Thesis Adviser", photo: "/
 function Avatar({ photo, name, bgClass, textClass }) {
   if (photo) {
     return (
-      <div className="mx-auto h-16 w-16 overflow-hidden rounded-full">
+      <div className="mx-auto h-24 w-24 overflow-hidden rounded-full">
         <Image
           src={photo}
           alt={name}
-          width={64}
-          height={64}
+          width={96}
+          height={96}
           className="h-full w-full object-cover"
         />
       </div>
     );
   }
   return (
-    <span className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full ${bgClass} ${textClass}`}>
-      <IconUserCircle size={30} />
+    <span className={`mx-auto flex h-24 w-24 items-center justify-center rounded-full ${bgClass} ${textClass}`}>
+      <IconUserCircle size={40} />
     </span>
   );
 }
