@@ -1,5 +1,8 @@
+"use client";
+
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getDatabase } from "firebase/database";
+
+import { getDatabase, Database } from "firebase/database";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -11,7 +14,18 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const hasFirebaseConfig = Boolean(
+  firebaseConfig.apiKey &&
+    firebaseConfig.databaseURL &&
+    firebaseConfig.projectId
+);
 
-export const db = getDatabase(app);
-export default app;
+let db: Database | null = null;
+
+if (hasFirebaseConfig) {
+  const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+
+  db = getDatabase(app);
+}
+
+export { db, hasFirebaseConfig };
