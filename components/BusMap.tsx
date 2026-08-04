@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
 import L from "leaflet";
-import { busLines, municipalities, haversineKm } from "@/lib/data";
+import { municipalities, haversineKm } from "@/lib/data";
 import { olongapoToSantaCruzRoute } from "@/lib/routes";
 import type { LatLngTuple } from "leaflet";
 import BusInfoCard from "@/components/BusInfoCard";
@@ -12,15 +12,13 @@ import { useLiveBuses } from "@/lib/useLiveBuses";
 const routePositions = olongapoToSantaCruzRoute as LatLngTuple[];
 const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
 
-function busIcon(color) {
-  return L.divIcon({
-    className: "",
-    html: `<div class="bus-pin" style="background:${color}">🚌</div>`,
-    iconSize: [34, 34],
-    iconAnchor: [17, 17],
-    popupAnchor: [0, -17],
-  });
-}
+const BUS_ICON = L.divIcon({
+  className: "",
+  html: `<div class="bus-pin" style="background:#1e3a8a">🚌</div>`,
+  iconSize: [34, 34],
+  iconAnchor: [17, 17],
+  popupAnchor: [0, -17],
+});
 
 const userIcon = L.divIcon({
   className: "",
@@ -63,14 +61,6 @@ export default function BusMap() {
   const [userLocation, setUserLocation] = useState(null);
   const [locationError, setLocationError] = useState(null);
   const { buses: liveBuses, loading: busesLoading } = useLiveBuses();
-
-  const icons = useMemo(() => {
-    const map = {};
-    busLines.forEach((line) => {
-      map[line.id] = busIcon(line.color);
-    });
-    return map;
-  }, []);
 
   useEffect(() => {
     if (!("geolocation" in navigator)) {
@@ -140,33 +130,30 @@ export default function BusMap() {
 
         {liveBuses
           .filter((bus) => typeof bus.lat === "number" && typeof bus.lng === "number")
-          .map((bus) => {
-            const line = busLines.find((l) => l.id === bus.lineId);
-            const icon = icons[bus.lineId] ?? busIcon("#1e3a8a");
-            return (
-              <Marker
-                key={bus.id}
-                position={[bus.lat, bus.lng]}
-                icon={icon}
-                eventHandlers={{
-                  click: () => setSelectedBusId(bus.id),
-                }}
-              >
-                <Popup>
-                  <div className="min-w-[160px]">
-                    <p className="text-sm font-semibold" style={{ color: line?.color ?? "#1e3a8a" }}>
-                      {bus.label}
-                    </p>
+          .map((bus) => (
+            <Marker
+              key={bus.id}
+              position={[bus.lat, bus.lng]}
+              icon={BUS_ICON}
+              eventHandlers={{
+                click: () => setSelectedBusId(bus.id),
+              }}
+            >
+              <Popup>
+                <div className="min-w-[160px]">
+                  <p className="text-sm font-semibold text-brand">{bus.label}</p>
+                  {(bus.from || bus.to) && (
                     <p className="text-xs text-slate-600">
                       {bus.from} → {bus.to}
                     </p>
+                  )}
+                  {bus.speedKph != null && (
                     <p className="mt-1 text-xs text-slate-500">Speed: {bus.speedKph} km/h</p>
-                    {line && <p className="text-xs text-slate-400">{line.name}</p>}
-                  </div>
-                </Popup>
-              </Marker>
-            );
-          })}
+                  )}
+                </div>
+              </Popup>
+            </Marker>
+          ))}
 
         {userLocation && (
           <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon}>
