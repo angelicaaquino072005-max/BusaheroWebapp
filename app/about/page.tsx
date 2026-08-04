@@ -6,8 +6,9 @@ const developers = [
   { name: "Krizia Mae F. Funiestas", role: "Lead Developer" },
   { name: "Daisy Ann M. Magno", role: "Documentation" },
   { name: "Rhonielyn Mhei B. Tolentino", role: "System Analyst" },
-  { name: "Rowela Gongora, MCS", role: "Thesis Adviser" },
 ];
+
+const adviser = { name: "Rowela Gongora, MCS", role: "Thesis Adviser" };
 
 export default function AboutPage() {
   return (
@@ -26,7 +27,7 @@ export default function AboutPage() {
       </div>
 
       <h3 className="mb-4 mt-8 text-base font-bold text-slate-800">Meet the Developers</h3>
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {developers.map((dev) => (
           <div
             key={dev.name}
@@ -39,6 +40,15 @@ export default function AboutPage() {
             <p className="mt-0.5 text-xs text-slate-500">{dev.role}</p>
           </div>
         ))}
+      </div>
+
+      <h3 className="mb-4 mt-8 text-base font-bold text-slate-800">Thesis Adviser</h3>
+      <div className="max-w-xs rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-card">
+        <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 text-brand">
+          <IconUserCircle size={30} />
+        </span>
+        <p className="mt-3 text-sm font-semibold text-slate-800">{adviser.name}</p>
+        <p className="mt-0.5 text-xs text-slate-500">{adviser.role}</p>
       </div>
 
       <h3 className="mb-4 mt-8 text-base font-bold text-slate-800">Academic Information</h3>
