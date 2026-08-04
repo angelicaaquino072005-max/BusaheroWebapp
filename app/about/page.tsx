@@ -3,7 +3,7 @@ import BusIllustration from "@/components/BusIllustration";
 import { IconGraduation, IconBook, IconCalendar, IconUserCircle } from "@/components/Icons";
 
 const developers = [
-  { name: "Angelica Aquino", role: "UI/UX Designer", photo: "/team/angelica.jpg" },
+  { name: "Angelica Aquino", role: "Web Developer", photo: "/team/angelica.jpg" },
   { name: "Krizia Mae F. Funiestas", role: "Lead Developer", photo: "/team/krizia.jpg" },
   { name: "Daisy Ann M. Magno", role: "Documentation", photo: "/team/daisy_ann.jpg" },
   { name: "Rhonielyn Mhei B. Tolentino", role: "System Analyst", photo: "/team/rhonielyn.jpg" },
