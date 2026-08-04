@@ -1,12 +1,10 @@
 //app/fare-calculator/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
-import { useDiscount } from "@/components/DiscountContext";
+import { useMemo, useState } from "react";
 import { useFareSettings } from "@/lib/useFareSettings";
 import { getFareBreakdown, formatPeso } from "@/lib/fareCalculator";
 import { TOWN_ROUTES, getDistanceBetween } from "@/lib/routeDistances";
-import DiscountCard from "@/components/DiscountCard";
 import { IconBuilding, IconInfo } from "@/components/Icons";
 
 // TOWN_ROUTES gives { id, town } — MunicipalitySelect below expects { id, name }
@@ -19,50 +17,23 @@ function peso(n) {
 export default function FareCalculatorPage() {
   const [originId, setOriginId] = useState("");
   const [destinationId, setDestinationId] = useState("");
-  const [hasCalculated, setHasCalculated] = useState(false);
-  const [result, setResult] = useState(null);
-  const { discountApplied } = useDiscount();
   const { settings: fareSettings, loading } = useFareSettings();
 
-  const runCalculation = () => {
-    if (!originId || !destinationId || originId === destinationId) {
-      setResult(null);
-      return;
-    }
+  const isSamePlace = originId && originId === destinationId;
 
-    let km;
+  const km = useMemo(() => {
+    if (!originId || !destinationId || isSamePlace) return null;
+
     try {
-      km = getDistanceBetween(originId, destinationId);
+      return getDistanceBetween(originId, destinationId);
     } catch (err) {
       console.error("Fare calculator: unknown stop id", err);
-      setResult(null);
-      return;
+      return null;
     }
+  }, [originId, destinationId, isSamePlace]);
 
-    const breakdown = getFareBreakdown(km, fareSettings);
-    const total = discountApplied ? breakdown.discounted : breakdown.regular;
-    const discount = breakdown.regular - total;
-
-    setResult({
-      km,
-      base: breakdown.regular,
-      discount,
-      total,
-      discountPercent: fareSettings.discountPercent,
-    });
-  };
-
-  const handleCalculateClick = () => {
-    setHasCalculated(true);
-    runCalculation();
-  };
-
-  useEffect(() => {
-    if (hasCalculated) {
-      runCalculation();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [discountApplied, fareSettings, originId, destinationId]);
+  const breakdown =
+    km !== null && !loading ? getFareBreakdown(km, fareSettings) : null;
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6">
@@ -71,7 +42,7 @@ export default function FareCalculatorPage() {
           Fare Calculator
         </h2>
         <p className="text-sm text-slate-500">
-          Calculate the estimated fare for your trip.
+          Select your origin and destination to see the estimated fare.
         </p>
         {loading && (
           <p className="mt-1 text-xs text-slate-400">
@@ -96,16 +67,11 @@ export default function FareCalculatorPage() {
           />
         </div>
 
-        <div className="mt-4">
-          <DiscountCard />
-        </div>
-
-        <button
-          onClick={handleCalculateClick}
-          className="mt-4 w-full rounded-xl bg-blue-50 py-3 text-sm font-semibold text-brand transition-colors hover:bg-brand hover:text-white"
-        >
-          Calculate Fare
-        </button>
+        {isSamePlace && (
+          <p className="mt-4 text-xs text-slate-400">
+            Select two different municipalities to calculate a fare.
+          </p>
+        )}
       </div>
 
       <div className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-card sm:p-6">
@@ -113,44 +79,33 @@ export default function FareCalculatorPage() {
           Fare Breakdown
         </h3>
 
-        <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div>
-                <p className="text-sm font-medium text-slate-700">Base Fare</p>
-                <p className="text-xs text-slate-400">
-                  {result ? `${result.km} km · Regular Fare` : "Regular Fare"}
-                </p>
-              </div>
-              <p className="text-sm font-semibold text-slate-800">
-                {peso(result?.base ?? 0)}
-              </p>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-slate-700">
-                  Discount (
-                  {result?.discountPercent ?? fareSettings.discountPercent}%)
-                </p>
-                <p className="text-xs text-slate-400">
-                  Regular Passenger Discount
-                </p>
-              </div>
-              <p className="text-sm font-semibold text-emerald-600">
-                −{peso(result?.discount ?? 0)}
-              </p>
-            </div>
+        <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-3">
+          <div>
+            <p className="text-sm font-medium text-slate-700">Distance</p>
+            <p className="text-xs text-slate-400">
+              {breakdown ? "Estimated route distance" : "Select a trip above"}
+            </p>
+          </div>
+          <p className="text-sm font-semibold text-slate-800">
+            {breakdown ? `${breakdown.distanceKm} km` : "—"}
+          </p>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="rounded-xl bg-blue-50 px-6 py-5 text-center">
+            <p className="text-sm text-brand">Regular Fare</p>
+            <p className="text-3xl font-bold text-brand">
+              {breakdown ? peso(breakdown.regular) : "—"}
+            </p>
           </div>
 
-          <div className="flex flex-col justify-center rounded-xl bg-blue-50 px-6 py-5 text-center">
-            <p className="text-sm text-brand">Total Fare</p>
-            <p className="text-3xl font-bold text-brand">
-              {peso(result?.total ?? 0)}
+          <div className="rounded-xl bg-emerald-50 px-6 py-5 text-center">
+            <p className="text-sm text-emerald-700">Student / Elderly / PWD</p>
+            <p className="text-3xl font-bold text-emerald-600">
+              {breakdown ? peso(breakdown.discounted) : "—"}
             </p>
-            <p className="mt-1 text-xs text-brand/70">
-              {discountApplied
-                ? "Regular Passenger (discounted)"
-                : "Regular Passenger"}
+            <p className="mt-1 text-xs text-emerald-700/70">
+              {fareSettings.discountPercent}% discount applied
             </p>
           </div>
         </div>
