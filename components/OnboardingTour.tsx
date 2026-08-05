@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import {
-  IconBus,
   IconMap,
   IconInfo,
   IconRoute,
@@ -68,6 +68,7 @@ export default function OnboardingTour() {
 
   const slide = slides[index];
   const isLast = index === slides.length - 1;
+  const Icon = slide.icon;
 
   return (
     <div className="fixed inset-0 z-[2000] flex flex-col bg-slate-50 px-6 py-8">
@@ -81,8 +82,18 @@ export default function OnboardingTour() {
       </div>
 
       <div className="flex flex-1 flex-col items-center justify-center text-center">
-        <span className="mb-8 flex h-32 w-32 items-center justify-center rounded-3xl bg-brand text-white shadow-xl">
-          <slide.icon size={56} />
+        <span className="mb-8 flex h-32 w-32 items-center justify-center overflow-hidden rounded-3xl bg-brand text-white shadow-xl">
+          {slide.image ? (
+            <Image
+              src={slide.image}
+              alt="BUSahero"
+              width={128}
+              height={128}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <Icon size={56} />
+          )}
         </span>
         <h2 className="mb-3 text-2xl font-bold text-slate-800">{slide.title}</h2>
         <p className="max-w-xs text-sm leading-relaxed text-slate-500">{slide.description}</p>
