@@ -3,34 +3,52 @@ import BusIllustration from "@/components/BusIllustration";
 import { IconGraduation, IconBook, IconCalendar } from "@/components/Icons";
 
 const developers = [
-  { name: "Angelica Aquino", role: "UI/UX Designer", photo: "/team/angelica.jpg" },
-  { name: "Krizia Mae F. Funiestas", role: "Lead Developer", photo: "/team/krizia.jpg" },
-  { name: "Daisy Ann M. Magno", role: "Documentation", photo: "/team/daisy_ann.jpg" },
-  { name: "Rhonielyn Mhei B. Tolentino", role: "System Analyst", photo: "/team/rhonielyn.jpg" },
+  {
+    name: "Angelica Aquino",
+    role: "Full Stack Developer, UI/UX Designer, Hardware integration",
+    photo: "/team/angelica.jpg",
+  },
+  {
+    name: "Krizia Mae F. Funiestas",
+    role: "Mobile App Developer, Quality Assurance Engineer, and Testing",
+    photo: "/team/krizia.jpg",
+  },
+  {
+    name: "Daisy Ann M. Magno",
+    role: "Documentation Specialist, QA Tester",
+    photo: "/team/daisy_ann.jpg",
+  },
+  {
+    name: "Rhonielyn Mhei B. Tolentino",
+    role: "System Analyst",
+    photo: "/team/rhonielyn.jpg",
+  },
 ];
 
 const adviser = { name: "Rowela Gongora, MCS", role: "Thesis Adviser", photo: "/team/rowela.jpg" };
 
 function ProfileCard({ number, name, role, photo }) {
   return (
-    <div className="group relative aspect-[3/4] overflow-hidden rounded-2xl bg-brand shadow-card">
+    <div className="group relative aspect-[3/4] overflow-hidden rounded-2xl bg-brand shadow-card transition-shadow duration-300 hover:shadow-xl">
       <Image
         src={photo}
         alt={name}
         fill
-        className="object-cover"
+        className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
         sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
       />
 
       {/* Number badge */}
-      <span className="absolute left-3 top-3 text-xs font-bold text-white/70">
+      <span className="absolute left-3 top-3 z-10 text-xs font-bold text-white/70 transition-colors duration-300 group-hover:text-white">
         {number}
       </span>
 
       {/* Bottom gradient + text */}
-      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-brand-dark via-brand-dark/90 to-transparent px-4 pb-4 pt-10">
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-brand-dark via-brand-dark/90 to-transparent px-4 pb-4 pt-10 transition-all duration-300 group-hover:from-brand-dark group-hover:via-brand-dark/95">
         <p className="text-sm font-bold uppercase tracking-wide text-white">{name}</p>
-        <p className="mt-0.5 text-xs font-medium text-blue-200">{role}</p>
+        <p className="mt-0.5 text-xs font-medium leading-snug text-blue-200 transition-colors duration-300 group-hover:text-white">
+          {role}
+        </p>
       </div>
     </div>
   );
