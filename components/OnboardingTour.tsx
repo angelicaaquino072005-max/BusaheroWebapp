@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import {
   IconMap,
-  IconInfo,
   IconRoute,
   IconWallet,
   IconChevronLeft,
@@ -24,7 +23,7 @@ const slides = [
       "See real-time bus positions on the map as they travel between Olongapo City and Zambales.",
   },
   {
-    icon: IconInfo,
+    marker: true,
     title: "Tap a Bus for Details",
     description:
       "Tap any bus marker to see its speed, current status, and estimated time of arrival to your location.",
@@ -82,8 +81,8 @@ export default function OnboardingTour() {
       </div>
 
       <div className="flex flex-1 flex-col items-center justify-center text-center">
-        <span className="mb-8 flex h-32 w-32 items-center justify-center overflow-hidden rounded-3xl bg-brand text-white shadow-xl">
-          {slide.image ? (
+        {slide.image ? (
+          <span className="mb-8 flex h-32 w-32 items-center justify-center overflow-hidden rounded-3xl bg-brand text-white shadow-xl">
             <Image
               src={slide.image}
               alt="BUSahero"
@@ -91,10 +90,19 @@ export default function OnboardingTour() {
               height={128}
               className="h-full w-full object-cover"
             />
-          ) : (
+          </span>
+        ) : slide.marker ? (
+          <div className="relative mb-10 flex h-32 w-32 items-center justify-center">
+            <div className="relative flex h-24 w-24 items-center justify-center rounded-3xl border-[6px] border-white bg-brand text-5xl shadow-xl">
+              🚌
+              <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 border-l-[14px] border-r-[14px] border-t-[16px] border-l-transparent border-r-transparent border-t-white" />
+            </div>
+          </div>
+        ) : (
+          <span className="mb-8 flex h-32 w-32 items-center justify-center rounded-3xl bg-brand text-white shadow-xl">
             <Icon size={56} />
-          )}
-        </span>
+          </span>
+        )}
         <h2 className="mb-3 text-2xl font-bold text-slate-800">{slide.title}</h2>
         <p className="max-w-xs text-sm leading-relaxed text-slate-500">{slide.description}</p>
       </div>
