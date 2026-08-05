@@ -7,6 +7,7 @@ import {
   IconInfo,
   IconShield,
   IconFileText,
+  IconCompass,
 } from "@/components/Icons";
 
 export const primaryNav = [
@@ -16,6 +17,7 @@ export const primaryNav = [
 ];
 
 export const infoNav = [
+  { href: "/how-to-use", label: "How to Use", title: "How to Use BUSahero", icon: IconCompass },
   { href: "/mission", label: "Mission", title: "Mission", icon: IconFlag },
   { href: "/vision", label: "Vision", title: "Vision", icon: IconEye },
   { href: "/about", label: "About Us", title: "About BUSahero", icon: IconInfo },
