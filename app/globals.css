@@ -96,3 +96,50 @@ body {
   color: #fff;
   letter-spacing: -0.01em;
 }
+/* Bus marker — rounded badge with pointer tail, like delivery-tracking apps */
+.bus-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #1e3a8a;
+  border: 3px solid white;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.35);
+  font-size: 16px;
+  position: relative;
+}
+
+.bus-marker::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  transform: translateX(-50%);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid white;
+}
+
+/* Floating status pill above the bus, like "On the way" */
+.bus-status-pill {
+  background: white;
+  color: #1e3a8a;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.25);
+  white-space: nowrap;
+  border: none !important;
+}
+
+.bus-status-pill.stopped {
+  color: #dc2626;
+}
+
+/* Override Leaflet's default tooltip chrome so only our pill shows */
+.leaflet-tooltip.bus-status-pill::before {
+  display: none;
+}

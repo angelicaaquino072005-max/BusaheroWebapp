@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Polyline, Tooltip, useMap } from "react-leaflet";
 import L from "leaflet";
 import { municipalities, haversineKm } from "@/lib/data";
 import { olongapoToSantaCruzRoute } from "@/lib/routes";
@@ -14,10 +14,10 @@ const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
 
 const BUS_ICON = L.divIcon({
   className: "",
-  html: `<div class="bus-pin" style="background:#1e3a8a">🚌</div>`,
-  iconSize: [34, 34],
-  iconAnchor: [17, 17],
-  popupAnchor: [0, -17],
+  html: `<div class="bus-marker">🚌</div>`,
+  iconSize: [36, 36],
+  iconAnchor: [18, 25],
+  popupAnchor: [0, -25],
 });
 
 const userIcon = L.divIcon({
@@ -130,30 +130,41 @@ export default function BusMap() {
 
         {liveBuses
           .filter((bus) => typeof bus.lat === "number" && typeof bus.lng === "number")
-          .map((bus) => (
-            <Marker
-              key={bus.id}
-              position={[bus.lat, bus.lng]}
-              icon={BUS_ICON}
-              eventHandlers={{
-                click: () => setSelectedBusId(bus.id),
-              }}
-            >
-              <Popup>
-                <div className="min-w-[160px]">
-                  <p className="text-sm font-semibold text-brand">{bus.label}</p>
-                  {(bus.from || bus.to) && (
-                    <p className="text-xs text-slate-600">
-                      {bus.from} → {bus.to}
-                    </p>
-                  )}
-                  {bus.speedKph != null && (
-                    <p className="mt-1 text-xs text-slate-500">Speed: {bus.speedKph} km/h</p>
-                  )}
-                </div>
-              </Popup>
-            </Marker>
-          ))}
+          .map((bus) => {
+            const isStopped = bus.speedKph === 0 || String(bus.status ?? "").toLowerCase() === "stopped";
+            return (
+              <Marker
+                key={bus.id}
+                position={[bus.lat, bus.lng]}
+                icon={BUS_ICON}
+                eventHandlers={{
+                  click: () => setSelectedBusId(bus.id),
+                }}
+              >
+                <Tooltip
+                  permanent
+                  direction="top"
+                  offset={[0, -32]}
+                  className={`bus-status-pill ${isStopped ? "stopped" : ""}`}
+                >
+                  {isStopped ? "Stopped" : "On the way"}
+                </Tooltip>
+                <Popup>
+                  <div className="min-w-[160px]">
+                    <p className="text-sm font-semibold text-brand">{bus.label}</p>
+                    {(bus.from || bus.to) && (
+                      <p className="text-xs text-slate-600">
+                        {bus.from} → {bus.to}
+                      </p>
+                    )}
+                    {bus.speedKph != null && (
+                      <p className="mt-1 text-xs text-slate-500">Speed: {bus.speedKph} km/h</p>
+                    )}
+                  </div>
+                </Popup>
+              </Marker>
+            );
+          })}
 
         {userLocation && (
           <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon}>
