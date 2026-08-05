@@ -13,7 +13,7 @@ import {
 
 const slides = [
   {
-    icon: IconBus,
+    image: "/busahero-logo.jpg",
     title: "Welcome to BUSahero 😄",
     description: "Let's get to know what you can do with BUSahero.",
   },
