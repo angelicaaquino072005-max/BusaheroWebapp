@@ -4,12 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { primaryNav } from "@/lib/nav";
 
-const shortLabel = {
-  "Live Tracking": "Map",
-  "Route Planner": "Route",
-  "Fare Calculator": "Fare",
-};
-
 export default function MobileTabBar() {
   const pathname = usePathname();
   return (
@@ -32,7 +26,7 @@ export default function MobileTabBar() {
             >
               <Icon size={19} />
             </span>
-            {shortLabel[item.label]}
+            {item.label}
           </Link>
         );
       })}
