@@ -1,9 +1,9 @@
 import Image from "next/image";
 import BusIllustration from "@/components/BusIllustration";
-import { IconGraduation, IconBook, IconCalendar, IconUserCircle } from "@/components/Icons";
+import { IconGraduation, IconBook, IconCalendar } from "@/components/Icons";
 
 const developers = [
-  { name: "Angelica Aquino", role: "Web Developer", photo: "/team/angelica.jpg" },
+  { name: "Angelica Aquino", role: "UI/UX Designer", photo: "/team/angelica.jpg" },
   { name: "Krizia Mae F. Funiestas", role: "Lead Developer", photo: "/team/krizia.jpg" },
   { name: "Daisy Ann M. Magno", role: "Documentation", photo: "/team/daisy_ann.jpg" },
   { name: "Rhonielyn Mhei B. Tolentino", role: "System Analyst", photo: "/team/rhonielyn.jpg" },
@@ -11,24 +11,28 @@ const developers = [
 
 const adviser = { name: "Rowela Gongora, MCS", role: "Thesis Adviser", photo: "/team/rowela.jpg" };
 
-function Avatar({ photo, name, bgClass, textClass }) {
-  if (photo) {
-    return (
-      <div className="mx-auto h-24 w-24 overflow-hidden rounded-full">
-        <Image
-          src={photo}
-          alt={name}
-          width={96}
-          height={96}
-          className="h-full w-full object-cover"
-        />
-      </div>
-    );
-  }
+function ProfileCard({ number, name, role, photo }) {
   return (
-    <span className={`mx-auto flex h-24 w-24 items-center justify-center rounded-full ${bgClass} ${textClass}`}>
-      <IconUserCircle size={40} />
-    </span>
+    <div className="group relative aspect-[3/4] overflow-hidden rounded-2xl bg-brand shadow-card">
+      <Image
+        src={photo}
+        alt={name}
+        fill
+        className="object-cover"
+        sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+      />
+
+      {/* Number badge */}
+      <span className="absolute left-3 top-3 text-xs font-bold text-white/70">
+        {number}
+      </span>
+
+      {/* Bottom gradient + text */}
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-brand-dark via-brand-dark/90 to-transparent px-4 pb-4 pt-10">
+        <p className="text-sm font-bold uppercase tracking-wide text-white">{name}</p>
+        <p className="mt-0.5 text-xs font-medium text-blue-200">{role}</p>
+      </div>
+    </div>
   );
 }
 
@@ -50,35 +54,20 @@ export default function AboutPage() {
 
       <h3 className="mb-4 mt-8 text-base font-bold text-slate-800">Meet the Developers</h3>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        {developers.map((dev) => (
-          <div
+        {developers.map((dev, i) => (
+          <ProfileCard
             key={dev.name}
-            className="rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-card"
-          >
-            <Avatar
-              photo={dev.photo}
-              name={dev.name}
-              bgClass="bg-violet-100"
-              textClass="text-violet-400"
-            />
-            <p className="mt-3 text-sm font-semibold text-slate-800">{dev.name}</p>
-            <p className="mt-0.5 text-xs text-slate-500">{dev.role}</p>
-          </div>
+            number={String(i + 1).padStart(2, "0")}
+            name={dev.name}
+            role={dev.role}
+            photo={dev.photo}
+          />
         ))}
       </div>
 
       <h3 className="mb-4 mt-8 text-base font-bold text-slate-800">Thesis Adviser</h3>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-card">
-          <Avatar
-            photo={adviser.photo}
-            name={adviser.name}
-            bgClass="bg-blue-50"
-            textClass="text-brand"
-          />
-          <p className="mt-3 text-sm font-semibold text-slate-800">{adviser.name}</p>
-          <p className="mt-0.5 text-xs text-slate-500">{adviser.role}</p>
-        </div>
+        <ProfileCard number="01" name={adviser.name} role={adviser.role} photo={adviser.photo} />
       </div>
 
       <h3 className="mb-4 mt-8 text-base font-bold text-slate-800">Academic Information</h3>
