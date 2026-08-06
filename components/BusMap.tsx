@@ -94,12 +94,13 @@ export default function BusMap() {
   return (
     <div className="relative h-full w-full">
       <MapContainer
-        center={[15.24, 120.1]}
-        zoom={9}
-        scrollWheelZoom
-        zoomControl={false}
-        className="h-full w-full"
-      >
+      center={[14.98, 120.05]}
+      zoom={9}
+      minZoom={8}
+      scrollWheelZoom
+      zoomControl={false}
+      className="h-full w-full"
+    >
         <TileLayer
           attribution='&copy; <a href="https://www.maptiler.com/copyright/" target="_blank" rel="noreferrer">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap contributors</a>'
           url={`https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`}
