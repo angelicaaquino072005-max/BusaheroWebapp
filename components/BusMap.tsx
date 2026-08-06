@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polyline, Tooltip, useMap } from "react-leaflet";
 import L from "leaflet";
-import { municipalities, haversineKm } from "@/lib/data";
+import { haversineKm } from "@/lib/data";
 import { olongapoToSantaCruzRoute } from "@/lib/routes";
 import type { LatLngTuple } from "leaflet";
 import BusInfoCard from "@/components/BusInfoCard";
@@ -111,23 +111,6 @@ export default function BusMap() {
           positions={routePositions}
           pathOptions={{ color: "#1e3a8a", weight: 4, opacity: 0.85 }}
         />
-
-      {municipalities.map((m) => (
-        <Marker
-          key={m.id}
-          position={[m.lat, m.lng]}
-          icon={L.divIcon({
-            className: "",
-            html: `<div style="width:10px;height:10px;border-radius:999px;background:#1E3A8A;border:2px solid white;box-shadow:0 0 0 2px rgba(30,58,138,0.25), 0 1px 3px rgba(15,23,42,.4);"></div>`,
-            iconSize: [10, 10],
-            iconAnchor: [5, 5],
-          })}
-        >
-          <Popup>
-            <span className="text-sm font-medium">{m.name}</span>
-          </Popup>
-        </Marker>
-      ))}
         {liveBuses
           .filter((bus) => typeof bus.lat === "number" && typeof bus.lng === "number")
           .map((bus) => {
