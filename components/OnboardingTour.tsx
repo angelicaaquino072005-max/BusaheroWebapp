@@ -30,7 +30,7 @@ const slides = [
   },
   {
     icon: IconRoute,
-    title: "Plan Your Route",
+    title: "Route",
     description:
       "Check which stops a bus has already passed and which ones are still ahead on its trip.",
   },
