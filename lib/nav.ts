@@ -12,7 +12,7 @@ import {
 
 export const primaryNav = [
   { href: "/", label: "Live Tracking", title: "Live Bus Tracking", icon: IconMap },
-  { href: "/route-planner", label: "Route", title: "Route Planner", icon: IconRoute },
+  { href: "/route-planner", label: "Route", title: "Route", icon: IconRoute },
   { href: "/fare-calculator", label: "Fare Calculator", title: "Fare Calculator", icon: IconWallet },
 ];
 
