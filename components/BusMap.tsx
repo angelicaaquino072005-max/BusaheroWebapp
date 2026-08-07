@@ -111,7 +111,7 @@ export default function BusMap() {
           positions={routePositions}
           pathOptions={{ color: "#1e3a8a", weight: 4, opacity: 0.85 }}
         />
-        {liveBuses
+       {liveBuses
           .filter((bus) => typeof bus.lat === "number" && typeof bus.lng === "number")
           .map((bus) => {
             const isStopped = bus.speedKph === 0 || String(bus.status ?? "").toLowerCase() === "stopped";
@@ -130,21 +130,12 @@ export default function BusMap() {
                   offset={[0, -32]}
                   className={`bus-status-pill ${isStopped ? "stopped" : ""}`}
                 >
-                  {isStopped ? "Stopped" : "On the way"}
+                  {isStopped
+                    ? "Stopped"
+                    : bus.speedKph != null
+                    ? `${Math.round(bus.speedKph)} km/h`
+                    : "On the way"}
                 </Tooltip>
-                <Popup>
-                  <div className="min-w-[160px]">
-                    <p className="text-sm font-semibold text-brand">{bus.label}</p>
-                    {(bus.from || bus.to) && (
-                      <p className="text-xs text-slate-600">
-                        {bus.from} → {bus.to}
-                      </p>
-                    )}
-                    {bus.speedKph != null && (
-                      <p className="mt-1 text-xs text-slate-500">Speed: {bus.speedKph} km/h</p>
-                    )}
-                  </div>
-                </Popup>
               </Marker>
             );
           })}
