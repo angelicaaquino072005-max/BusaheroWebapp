@@ -29,7 +29,7 @@ const adviser = { name: "Rowela Gongora, MCS", role: "Thesis Adviser", photo: "/
 
 function ProfileCard({ number, name, role, photo }) {
   return (
-    <div className="group relative aspect-[3/4] overflow-hidden rounded-2xl bg-brand shadow-card transition-shadow duration-300 hover:shadow-xl">
+   <div className="group relative h-72 overflow-hidden rounded-2xl bg-brand shadow-card transition-shadow duration-300 hover:shadow-xl sm:h-80">
       <Image
         src={photo}
         alt={name}
