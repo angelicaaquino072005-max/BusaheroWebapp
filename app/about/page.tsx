@@ -34,7 +34,7 @@ function ProfileCard({ number, name, role, photo }) {
         src={photo}
         alt={name}
         fill
-        className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+        className="object-cover object-top transition-transform duration-500 ease-out group-hover:scale-110"
         sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
       />
 
