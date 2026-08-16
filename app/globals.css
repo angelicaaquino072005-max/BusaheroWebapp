@@ -99,8 +99,8 @@ body {
 
 /* Bus image itself (the top-down/side vehicle icon on the road) */
 .bus-marker-img {
-  width: 44px;
-  height: 44px;
+  width: 44px !important;
+  height: 44px !important;
   object-fit: contain;
   filter: drop-shadow(0 3px 8px rgba(15, 23, 42, 0.4));
 }
@@ -125,8 +125,9 @@ body {
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 46px;
-  height: auto;
+  width: 46px !important;
+  height: 40px !important;
+  object-fit: contain;
   filter: drop-shadow(0 3px 8px rgba(15, 23, 42, 0.4));
 }
 
