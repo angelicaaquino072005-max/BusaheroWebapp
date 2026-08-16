@@ -117,7 +117,7 @@ body {
 .bus-live-marker {
   position: relative;
   width: 150px;
-  height: 82px;
+  height: 70px;
 }
 
 .bus-live-vehicle {
@@ -134,13 +134,13 @@ body {
 /* glowing beam connecting the badge down to the vehicle */
 .bus-live-beam {
   position: absolute;
-  bottom: 34px;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  width: 26px;
-  height: 22px;
-  background: linear-gradient(to bottom, rgba(37, 99, 235, 0.75), rgba(37, 99, 235, 0.05));
-  clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%);
+  width: 36px;
+  height: 28px;
+  background: linear-gradient(to bottom, rgba(37, 99, 235, 0.85), rgba(37, 99, 235, 0.1));
+  clip-path: polygon(28% 0%, 72% 0%, 100% 100%, 0% 100%);
   pointer-events: none;
 }
 
