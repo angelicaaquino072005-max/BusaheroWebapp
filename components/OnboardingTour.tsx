@@ -20,7 +20,7 @@ const slides = [
     icon: IconMap,
     title: "Live Bus Tracking",
     description:
-      "See real-time bus positions on the map as they travel between Olongapo City and Zambales.",
+      "See real-time bus positions on the map as they travel between Olongapo City and Sta. Cruz Zambales.",
   },
   {
     marker: true,
