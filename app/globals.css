@@ -97,34 +97,12 @@ body {
   letter-spacing: -0.01em;
 }
 
-/* Bus marker — glowing circle icon, like delivery-tracking apps */
-.bus-marker {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 999px;
-  background: #1e3a8a;
-  border: 3px solid white;
-  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.35);
-  font-size: 16px;
-  position: relative;
-}
-
-/* soft radiating glow beneath the icon */
-.bus-marker::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 60px;
-  height: 60px;
-  transform: translate(-50%, -50%);
-  border-radius: 999px;
-  background: radial-gradient(circle, rgba(30, 58, 138, 0.28) 0%, rgba(30, 58, 138, 0) 70%);
-  z-index: -1;
-  pointer-events: none;
+/* Bus marker — top-down van illustration */
+.bus-marker-img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 8px rgba(15, 23, 42, 0.4));
 }
 
 /* Floating status pill beside the bus, like "On the way" */
