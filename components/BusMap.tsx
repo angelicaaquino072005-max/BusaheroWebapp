@@ -122,7 +122,7 @@ export default function BusMap() {
       <MapContainer
       center={[14.98, 120.05]}
       zoom={9}
-      minZoom={8}
+      minZoom={2}
       scrollWheelZoom
       zoomControl={false}
       className="h-full w-full"
