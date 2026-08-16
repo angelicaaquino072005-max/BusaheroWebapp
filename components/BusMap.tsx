@@ -18,13 +18,13 @@ function createBusIcon(label: string, isStopped: boolean) {
       className: "",
       html: `
         <div class="bus-stopped-marker">
-          <img src="/bus-icon.png" class="bus-marker-img" />
           <div class="bus-status-pill stopped">${label}</div>
+          <img src="/bus-icon.png" class="bus-marker-img" />
         </div>
       `,
-      iconSize: [170, 44],
-      iconAnchor: [22, 22],
-      popupAnchor: [0, -22],
+      iconSize: [140, 84],
+      iconAnchor: [70, 84],
+      popupAnchor: [0, -84],
     });
   }
 
