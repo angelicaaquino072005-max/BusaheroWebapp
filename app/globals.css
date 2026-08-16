@@ -148,13 +148,16 @@ body {
   position: absolute;
   top: 0;
   left: 50%;
-  transform: translateX(-38%);
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  height: 34px;
 }
 
+/* Fixed to the container center (same x as the beam/vehicle below),
+   independent of the pill's text length. */
 .bus-live-circle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateX(-50%);
   width: 34px;
   height: 34px;
   border-radius: 999px;
@@ -168,7 +171,14 @@ body {
   flex-shrink: 0;
 }
 
+/* Anchored to the right of the circle by a fixed pixel offset, so its
+   own width (which changes as the speed text updates) never shifts
+   the circle's position. */
 .bus-live-pill {
+  position: absolute;
+  top: 50%;
+  left: 25px;
+  transform: translateY(-50%);
   background: white;
   border: 2px solid #2563eb;
   border-radius: 999px;
@@ -178,7 +188,6 @@ body {
   color: #0f172a;
   white-space: nowrap;
   box-shadow: 0 3px 8px rgba(15, 23, 42, 0.2);
-  position: relative;
 }
 
 /* pointer tail on the pill, pointing back into the circle */
