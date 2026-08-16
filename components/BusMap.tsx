@@ -14,10 +14,10 @@ const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
 
 const BUS_ICON = L.divIcon({
   className: "",
-  html: `<div class="bus-marker">🚌</div>`,
-  iconSize: [36, 36],
-  iconAnchor: [18, 25],
-  popupAnchor: [0, -25],
+  html: `<img src="/bus-icon.png" class="bus-marker-img" />`,
+  iconSize: [44, 44],
+  iconAnchor: [22, 22],
+  popupAnchor: [0, -22],
 });
 
 const userIcon = L.divIcon({
@@ -124,12 +124,12 @@ export default function BusMap() {
                   click: () => setSelectedBusId(bus.id),
                 }}
               >
-                <Tooltip
-                  permanent
-                  direction="top"
-                  offset={[0, -32]}
-                  className={`bus-status-pill ${isStopped ? "stopped" : ""}`}
-                >
+               <Tooltip
+               permanent
+               direction="right"
+               offset={[20, 0]}
+               className={`bus-status-pill ${isStopped ? "stopped" : ""}`}
+              >
                   {isStopped
                     ? "Stopped"
                     : bus.speedKph != null
