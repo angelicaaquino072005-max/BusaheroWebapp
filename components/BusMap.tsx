@@ -40,9 +40,9 @@ function createBusIcon(label: string, isStopped: boolean) {
         <img src="/bus-icon.png" class="bus-live-vehicle" />
       </div>
     `,
-    iconSize: [150, 120],
-    iconAnchor: [75, 120],
-    popupAnchor: [0, -120],
+    iconSize: [150, 82],
+    iconAnchor: [75, 82],
+    popupAnchor: [0, -82],
   });
 }
 
