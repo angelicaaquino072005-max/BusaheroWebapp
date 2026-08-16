@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, Polyline, Tooltip, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
 import L from "leaflet";
 import { haversineKm } from "@/lib/data";
 import { olongapoToSantaCruzRoute } from "@/lib/routes";
@@ -12,13 +12,39 @@ import { useLiveBuses } from "@/lib/useLiveBuses";
 const routePositions = olongapoToSantaCruzRoute as LatLngTuple[];
 const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
 
-const BUS_ICON = L.divIcon({
-  className: "",
-  html: `<img src="/bus-icon.png" class="bus-marker-img" />`,
-  iconSize: [44, 44],
-  iconAnchor: [22, 22],
-  popupAnchor: [0, -22],
-});
+function createBusIcon(label: string, isStopped: boolean) {
+  if (isStopped) {
+    return L.divIcon({
+      className: "",
+      html: `
+        <div class="bus-stopped-marker">
+          <img src="/bus-icon.png" class="bus-marker-img" />
+          <div class="bus-status-pill stopped">${label}</div>
+        </div>
+      `,
+      iconSize: [170, 44],
+      iconAnchor: [22, 22],
+      popupAnchor: [0, -22],
+    });
+  }
+
+  return L.divIcon({
+    className: "",
+    html: `
+      <div class="bus-live-marker">
+        <div class="bus-live-badge">
+          <div class="bus-live-circle">🚌</div>
+          <div class="bus-live-pill">${label}</div>
+        </div>
+        <div class="bus-live-beam"></div>
+        <img src="/bus-icon.png" class="bus-live-vehicle" />
+      </div>
+    `,
+    iconSize: [150, 120],
+    iconAnchor: [75, 120],
+    popupAnchor: [0, -120],
+  });
+}
 
 const userIcon = L.divIcon({
   className: "",
@@ -115,28 +141,18 @@ export default function BusMap() {
           .filter((bus) => typeof bus.lat === "number" && typeof bus.lng === "number")
           .map((bus) => {
             const isStopped = bus.speedKph === 0 || String(bus.status ?? "").toLowerCase() === "stopped";
+            const label = isStopped
+              ? `${bus.label} · Stopped`
+              : `${bus.label} · ${Math.round(bus.speedKph ?? 0)} km/h`;
             return (
               <Marker
                 key={bus.id}
                 position={[bus.lat, bus.lng]}
-                icon={BUS_ICON}
+                icon={createBusIcon(label, isStopped)}
                 eventHandlers={{
                   click: () => setSelectedBusId(bus.id),
                 }}
-              >
-               <Tooltip
-               permanent
-               direction="right"
-               offset={[20, 0]}
-               className={`bus-status-pill ${isStopped ? "stopped" : ""}`}
-              >
-                  {isStopped
-                    ? "Stopped"
-                    : bus.speedKph != null
-                    ? `${Math.round(bus.speedKph)} km/h`
-                    : "On the way"}
-                </Tooltip>
-              </Marker>
+              />
             );
           })}
 

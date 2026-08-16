@@ -97,7 +97,7 @@ body {
   letter-spacing: -0.01em;
 }
 
-/* Bus marker — top-down van illustration */
+/* Bus image itself (the top-down/side vehicle icon on the road) */
 .bus-marker-img {
   width: 44px;
   height: 44px;
@@ -105,7 +105,93 @@ body {
   filter: drop-shadow(0 3px 8px rgba(15, 23, 42, 0.4));
 }
 
-/* Floating status pill beside the bus, like "On the way" */
+/* ===== STOPPED state: vehicle + simple pill side by side ===== */
+.bus-stopped-marker {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* ===== MOVING state: badge + beam + vehicle, stacked vertically ===== */
+.bus-live-marker {
+  position: relative;
+  width: 150px;
+  height: 120px;
+}
+
+.bus-live-vehicle {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 46px;
+  height: auto;
+  filter: drop-shadow(0 3px 8px rgba(15, 23, 42, 0.4));
+}
+
+/* glowing beam connecting the badge down to the vehicle */
+.bus-live-beam {
+  position: absolute;
+  bottom: 34px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 40px;
+  background: linear-gradient(to bottom, rgba(37, 99, 235, 0.55), rgba(37, 99, 235, 0));
+  clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%);
+  pointer-events: none;
+}
+
+.bus-live-badge {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-38%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bus-live-circle {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: #2563eb;
+  border: 2px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.5);
+  flex-shrink: 0;
+}
+
+.bus-live-pill {
+  background: white;
+  border: 2px solid #2563eb;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-weight: 700;
+  font-size: 12px;
+  color: #0f172a;
+  white-space: nowrap;
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.2);
+  position: relative;
+}
+
+/* pointer tail on the pill, pointing back into the circle */
+.bus-live-pill::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -7px;
+  transform: translateY(-50%);
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-right: 7px solid #2563eb;
+}
+
+/* ===== Stopped pill (used inside .bus-stopped-marker) ===== */
 .bus-status-pill {
   background: white;
   color: #0f172a;
@@ -115,21 +201,15 @@ body {
   border-radius: 16px;
   box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25);
   white-space: nowrap;
-  border: 2px solid #1e3a8a !important;
+  border: 2px solid #1e3a8a;
   position: relative;
 }
 
 .bus-status-pill.stopped {
-  border-color: #dc2626 !important;
+  border-color: #dc2626;
 }
 
-/* Override Leaflet's default tooltip chrome so only our pill shows */
-.leaflet-tooltip.bus-status-pill::before {
-  display: none;
-}
-
-/* pointer tail on the LEFT side, pointing back at the bus icon */
-.leaflet-tooltip.bus-status-pill::after {
+.bus-status-pill::after {
   content: "";
   position: absolute;
   top: 50%;
@@ -140,6 +220,6 @@ body {
   border-right: 8px solid #1e3a8a;
 }
 
-.leaflet-tooltip.bus-status-pill.stopped::after {
+.bus-status-pill.stopped::after {
   border-right-color: #dc2626;
 }
