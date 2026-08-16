@@ -96,14 +96,15 @@ body {
   color: #fff;
   letter-spacing: -0.01em;
 }
-/* Bus marker — rounded badge with pointer tail, like delivery-tracking apps */
+
+/* Bus marker — glowing circle icon, like delivery-tracking apps */
 .bus-marker {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: 999px;
   background: #1e3a8a;
   border: 3px solid white;
   box-shadow: 0 3px 10px rgba(15, 23, 42, 0.35);
@@ -111,15 +112,19 @@ body {
   position: relative;
 }
 
-.bus-marker::after {
+/* soft radiating glow beneath the icon */
+.bus-marker::before {
   content: "";
   position: absolute;
+  top: 50%;
   left: 50%;
-  bottom: -7px;
-  transform: translateX(-50%);
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-top: 7px solid white;
+  width: 60px;
+  height: 60px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(30, 58, 138, 0.28) 0%, rgba(30, 58, 138, 0) 70%);
+  z-index: -1;
+  pointer-events: none;
 }
 
 /* Floating status pill above the bus, like "On the way" */
@@ -128,18 +133,36 @@ body {
   color: #1e3a8a;
   font-weight: 700;
   font-size: 11px;
-  padding: 5px 10px;
+  padding: 6px 14px;
   border-radius: 999px;
-  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.25);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
   white-space: nowrap;
-  border: none !important;
+  border: 2px solid #1e3a8a !important;
+  position: relative;
 }
 
 .bus-status-pill.stopped {
   color: #dc2626;
+  border-color: #dc2626 !important;
 }
 
 /* Override Leaflet's default tooltip chrome so only our pill shows */
 .leaflet-tooltip.bus-status-pill::before {
   display: none;
+}
+
+/* custom pointer tail from the pill down toward the bus icon */
+.leaflet-tooltip.bus-status-pill::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  transform: translateX(-50%);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid #1e3a8a;
+}
+
+.leaflet-tooltip.bus-status-pill.stopped::after {
+  border-top-color: #dc2626;
 }
