@@ -235,6 +235,17 @@ body {
   border-color: #dc2626;
 }
 
+.bus-status-pill.no-signal {
+  border-color: #64748b;
+  border-style: dashed;
+  color: #475569;
+  background: #f1f5f9;
+}
+
+.bus-marker-img.no-signal {
+  filter: grayscale(1) opacity(0.6) drop-shadow(0 3px 8px rgba(15, 23, 42, 0.3));
+}
+
 .bus-status-pill::after {
   content: "";
   position: absolute;
@@ -248,4 +259,8 @@ body {
 
 .bus-status-pill.stopped::after {
   border-top-color: #dc2626;
+}
+
+.bus-status-pill.no-signal::after {
+  border-top-color: #64748b;
 }

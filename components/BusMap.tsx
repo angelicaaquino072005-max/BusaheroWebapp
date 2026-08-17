@@ -12,10 +12,25 @@ import { useLiveBuses } from "@/lib/useLiveBuses";
 const routePositions = olongapoToSantaCruzRoute as LatLngTuple[];
 const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
 
-function createBusIcon(label: string, isStopped: boolean, direction?: string) {
+function createBusIcon(label: string, isStopped: boolean, direction?: string, isNoSignal?: boolean) {
   const isFlipped = String(direction ?? "").toLowerCase() === "south";
   const vehicleClass = isFlipped ? "bus-marker-img flipped" : "bus-marker-img";
   const liveVehicleClass = isFlipped ? "bus-live-vehicle flipped" : "bus-live-vehicle";
+
+  if (isNoSignal) {
+    return L.divIcon({
+      className: "",
+      html: `
+        <div class="bus-stopped-marker">
+          <div class="bus-status-pill no-signal">${label}</div>
+          <img src="/bus-icon.png" class="${vehicleClass} no-signal" />
+        </div>
+      `,
+      iconSize: [150, 84],
+      iconAnchor: [75, 84],
+      popupAnchor: [0, -84],
+    });
+  }
 
   if (isStopped) {
     return L.divIcon({
@@ -143,15 +158,18 @@ export default function BusMap() {
        {liveBuses
           .filter((bus) => typeof bus.lat === "number" && typeof bus.lng === "number")
           .map((bus) => {
+            const isNoSignal = (bus.lastUpdateMinutesAgo ?? 0) >= 2;
             const isStopped = bus.speedKph === 0 || String(bus.status ?? "").toLowerCase() === "stopped";
-            const label = isStopped
+            const label = isNoSignal
+              ? `${bus.label} · No Signal`
+              : isStopped
               ? `${bus.label} · Stopped`
               : `${bus.label} · ${Math.round(bus.speedKph ?? 0)} km/h`;
             return (
               <Marker
                 key={bus.id}
                 position={[bus.lat, bus.lng]}
-                icon={createBusIcon(label, isStopped, bus.direction)}
+                icon={createBusIcon(label, isStopped, bus.direction, isNoSignal)}
                 eventHandlers={{
                   click: () => setSelectedBusId(bus.id),
                 }}
