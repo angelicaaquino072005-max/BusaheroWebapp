@@ -142,14 +142,13 @@ body {
 /* glowing halo beneath the bus, like a ground shadow */
 .bus-live-beam {
   position: absolute;
-  bottom: -16px;
+  bottom: -14px;
   left: 50%;
   transform: translateX(-50%);
-  width: 56px;
-  height: 20px;
-  border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(37, 99, 235, 0.7) 0%, rgba(37, 99, 235, 0.35) 45%, rgba(37, 99, 235, 0) 75%);
-  filter: blur(2px);
+  width: 60px;
+  height: 24px;
+  background: radial-gradient(ellipse at center, rgba(37, 99, 235, 0.5) 0%, rgba(37, 99, 235, 0.22) 40%, rgba(37, 99, 235, 0) 72%);
+  filter: blur(6px);
   pointer-events: none;
 }
 
