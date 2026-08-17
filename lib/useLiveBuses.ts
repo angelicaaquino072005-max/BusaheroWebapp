@@ -51,6 +51,14 @@ export function extractSpeedKph(value: any): number | null {
   return Number.isFinite(speed) ? speed : null;
 }
 
+// A bus counts as "stopped" if either its live speed reads 0 or the
+// device/backend explicitly reports a "stopped" status. This is checked
+// the same way everywhere a bus's stopped/moving state is shown (map
+// marker, info card) so they can't disagree about the same bus.
+export function isBusStopped(bus: { speedKph?: number | null; status?: string }): boolean {
+  return bus.speedKph === 0 || String(bus.status ?? "").toLowerCase() === "stopped";
+}
+
 export type LiveBusBase = {
   id: string;
   label: string;

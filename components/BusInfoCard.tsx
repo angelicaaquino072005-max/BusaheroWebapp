@@ -7,6 +7,7 @@ import {
   IconRefresh,
   IconX,
 } from "@/components/Icons";
+import { isBusStopped } from "@/lib/useLiveBuses";
 
 function Row({ icon: Icon, iconBg, iconColor, label, value }) {
   return (
@@ -27,7 +28,7 @@ function Row({ icon: Icon, iconBg, iconColor, label, value }) {
 export default function BusInfoCard({ bus, distanceKm, etaMinutes, onClose }) {
   const isFar = distanceKm != null && distanceKm > 5;
   const hasSpeed = typeof bus.speedKph === "number" && Number.isFinite(bus.speedKph);
-  const isStopped = String(bus.status ?? "").toLowerCase() === "stopped";
+  const isStopped = isBusStopped(bus);
 
   const stoppedSeconds = Number(bus.stoppedSeconds);
   const hasStoppedDuration = Number.isFinite(stoppedSeconds);
@@ -95,7 +96,7 @@ export default function BusInfoCard({ bus, distanceKm, etaMinutes, onClose }) {
           iconBg="bg-blue-50"
           iconColor="text-brand"
           label="Speed"
-          value={hasSpeed ? `${bus.speedKph} km/h` : "Speed data unavailable"}
+          value={hasSpeed ? `${Math.round(bus.speedKph)} km/h` : "Speed data unavailable"}
         />
         <Row
           icon={IconClock}

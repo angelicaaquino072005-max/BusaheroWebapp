@@ -3,11 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
 import L from "leaflet";
-import { haversineKm } from "@/lib/data";
+import { roadDistanceKm } from "@/lib/roadDistance";
 import { olongapoToSantaCruzRoute } from "@/lib/routes";
 import type { LatLngTuple } from "leaflet";
 import BusInfoCard from "@/components/BusInfoCard";
-import { useLiveBuses } from "@/lib/useLiveBuses";
+import { useLiveBuses, isBusStopped } from "@/lib/useLiveBuses";
 
 const routePositions = olongapoToSantaCruzRoute as LatLngTuple[];
 const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
@@ -109,7 +109,7 @@ export default function BusMap() {
 
   const distanceKm =
     selectedBus && userLocation
-      ? haversineKm(userLocation.lat, userLocation.lng, selectedBus.lat, selectedBus.lng)
+      ? roadDistanceKm(userLocation.lat, userLocation.lng, selectedBus.lat, selectedBus.lng)
       : null;
 
   const etaMinutes =
@@ -140,7 +140,7 @@ export default function BusMap() {
        {liveBuses
           .filter((bus) => typeof bus.lat === "number" && typeof bus.lng === "number")
           .map((bus) => {
-            const isStopped = bus.speedKph === 0 || String(bus.status ?? "").toLowerCase() === "stopped";
+            const isStopped = isBusStopped(bus);
             const label = isStopped
               ? `${bus.label} · Stopped`
               : `${bus.label} · ${Math.round(bus.speedKph ?? 0)} km/h`;
