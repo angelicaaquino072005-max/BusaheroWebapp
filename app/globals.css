@@ -139,7 +139,7 @@ body {
   transform: translateX(-50%) scaleX(-1);
 }
 
-/* glowing halo beneath the bus, like a ground shadow */
+/* glowing light beneath the bus, like it's lit up */
 .bus-live-beam {
   position: absolute;
   bottom: -14px;
@@ -147,13 +147,40 @@ body {
   transform: translateX(-50%);
   width: 60px;
   height: 24px;
-  background: radial-gradient(ellipse at center, rgba(37, 99, 235, 0.5) 0%, rgba(37, 99, 235, 0.22) 40%, rgba(37, 99, 235, 0) 72%);
-  filter: blur(6px);
+  background: radial-gradient(ellipse at center, rgba(147, 197, 253, 0.9) 0%, rgba(59, 130, 246, 0.55) 30%, rgba(37, 99, 235, 0.2) 55%, rgba(37, 99, 235, 0) 75%);
+  filter: blur(5px);
   pointer-events: none;
+  animation: bus-beam-pulse 1.8s ease-in-out infinite;
 }
 
 .bus-live-beam.flipped {
   transform: translateX(-50%) scaleX(-1);
+}
+
+@keyframes bus-beam-pulse {
+  0%, 100% {
+    opacity: 0.75;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.12);
+  }
+}
+
+.bus-live-beam.flipped {
+  animation: bus-beam-pulse-flipped 1.8s ease-in-out infinite;
+}
+
+@keyframes bus-beam-pulse-flipped {
+  0%, 100% {
+    opacity: 0.75;
+    transform: translateX(-50%) scaleX(-1) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scaleX(-1) scale(1.12);
+  }
 }
 
 .bus-live-badge {
