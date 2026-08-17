@@ -3,23 +3,27 @@
 import { useEffect, useMemo, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
 import L from "leaflet";
-import { roadDistanceKm } from "@/lib/roadDistance";
+import { haversineKm } from "@/lib/data";
 import { olongapoToSantaCruzRoute } from "@/lib/routes";
 import type { LatLngTuple } from "leaflet";
 import BusInfoCard from "@/components/BusInfoCard";
-import { useLiveBuses, isBusStopped } from "@/lib/useLiveBuses";
+import { useLiveBuses } from "@/lib/useLiveBuses";
 
 const routePositions = olongapoToSantaCruzRoute as LatLngTuple[];
 const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
 
-function createBusIcon(label: string, isStopped: boolean) {
+function createBusIcon(label: string, isStopped: boolean, direction?: string) {
+  const isFlipped = String(direction ?? "").toLowerCase() === "south";
+  const vehicleClass = isFlipped ? "bus-marker-img flipped" : "bus-marker-img";
+  const liveVehicleClass = isFlipped ? "bus-live-vehicle flipped" : "bus-live-vehicle";
+
   if (isStopped) {
     return L.divIcon({
       className: "",
       html: `
         <div class="bus-stopped-marker">
           <div class="bus-status-pill stopped">${label}</div>
-          <img src="/bus-icon.png" class="bus-marker-img" />
+          <img src="/bus-icon.png" class="${vehicleClass}" />
         </div>
       `,
       iconSize: [140, 84],
@@ -33,11 +37,10 @@ function createBusIcon(label: string, isStopped: boolean) {
     html: `
       <div class="bus-live-marker">
         <div class="bus-live-badge">
-          <div class="bus-live-circle">🚌</div>
           <div class="bus-live-pill">${label}</div>
         </div>
-        <div class="bus-live-beam"></div>
-        <img src="/bus-icon.png" class="bus-live-vehicle" />
+        <div class="bus-live-beam${isFlipped ? " flipped" : ""}"></div>
+        <img src="/bus-icon.png" class="${liveVehicleClass}" />
       </div>
     `,
     iconSize: [150, 70],
@@ -109,7 +112,7 @@ export default function BusMap() {
 
   const distanceKm =
     selectedBus && userLocation
-      ? roadDistanceKm(userLocation.lat, userLocation.lng, selectedBus.lat, selectedBus.lng)
+      ? haversineKm(userLocation.lat, userLocation.lng, selectedBus.lat, selectedBus.lng)
       : null;
 
   const etaMinutes =
@@ -122,7 +125,7 @@ export default function BusMap() {
       <MapContainer
       center={[14.98, 120.05]}
       zoom={9}
-      minZoom={2}
+      minZoom={8}
       scrollWheelZoom
       zoomControl={false}
       className="h-full w-full"
@@ -140,7 +143,7 @@ export default function BusMap() {
        {liveBuses
           .filter((bus) => typeof bus.lat === "number" && typeof bus.lng === "number")
           .map((bus) => {
-            const isStopped = isBusStopped(bus);
+            const isStopped = bus.speedKph === 0 || String(bus.status ?? "").toLowerCase() === "stopped";
             const label = isStopped
               ? `${bus.label} · Stopped`
               : `${bus.label} · ${Math.round(bus.speedKph ?? 0)} km/h`;
@@ -148,7 +151,7 @@ export default function BusMap() {
               <Marker
                 key={bus.id}
                 position={[bus.lat, bus.lng]}
-                icon={createBusIcon(label, isStopped)}
+                icon={createBusIcon(label, isStopped, bus.direction)}
                 eventHandlers={{
                   click: () => setSelectedBusId(bus.id),
                 }}
