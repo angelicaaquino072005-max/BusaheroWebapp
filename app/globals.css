@@ -142,13 +142,14 @@ body {
 /* glowing beam connecting the badge down to the vehicle */
 .bus-live-beam {
   position: absolute;
-  bottom: 20px;
+  bottom: 14px;
   left: 50%;
   transform: translateX(-50%);
-  width: 36px;
-  height: 28px;
-  background: linear-gradient(to bottom, rgba(37, 99, 235, 0.85), rgba(37, 99, 235, 0.1));
-  clip-path: polygon(28% 0%, 72% 0%, 100% 100%, 0% 100%);
+  width: 44px;
+  height: 36px;
+  background: radial-gradient(ellipse at top, rgba(37, 99, 235, 0.65) 0%, rgba(37, 99, 235, 0.25) 45%, rgba(37, 99, 235, 0) 80%);
+  clip-path: polygon(38% 0%, 62% 0%, 100% 100%, 0% 100%);
+  filter: blur(2px);
   pointer-events: none;
 }
 
@@ -178,16 +179,16 @@ body {
   position: relative;
 }
 
-/* pointer tail on the pill, pointing back into the circle */
+/* pointer tail on the pill, pointing down toward the beam/bus */
 .bus-live-pill::after {
   content: "";
   position: absolute;
-  top: 50%;
-  left: -7px;
-  transform: translateY(-50%);
-  border-top: 5px solid transparent;
-  border-bottom: 5px solid transparent;
-  border-right: 7px solid #2563eb;
+  left: 50%;
+  bottom: -7px;
+  transform: translateX(-50%);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid #2563eb;
 }
 
 /* ===== Stopped pill (used inside .bus-stopped-marker) ===== */
