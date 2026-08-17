@@ -139,22 +139,22 @@ body {
   transform: translateX(-50%) scaleX(-1);
 }
 
-/* glowing beam — sits just in front of the bus, in its direction of travel */
+/* glowing halo around the bus itself */
 .bus-live-beam {
   position: absolute;
-  bottom: 4px;
+  bottom: -8px;
   left: 50%;
-  transform: translate(-15%, 0);
-  width: 40px;
-  height: 30px;
-  background: radial-gradient(ellipse at top, rgba(37, 99, 235, 0.6) 0%, rgba(37, 99, 235, 0.22) 45%, rgba(37, 99, 235, 0) 80%);
-  clip-path: polygon(38% 0%, 62% 0%, 100% 100%, 0% 100%);
-  filter: blur(2px);
+  transform: translateX(-50%);
+  width: 64px;
+  height: 46px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(37, 99, 235, 0.65) 0%, rgba(37, 99, 235, 0.3) 45%, rgba(37, 99, 235, 0) 75%);
+  filter: blur(3px);
   pointer-events: none;
 }
 
 .bus-live-beam.flipped {
-  transform: translate(-85%, 0) scaleX(-1);
+  transform: translateX(-50%) scaleX(-1);
 }
 
 .bus-live-badge {
