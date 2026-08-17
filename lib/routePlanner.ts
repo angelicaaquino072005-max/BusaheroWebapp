@@ -138,3 +138,44 @@ export function resolveDirection(
 
   return "Unknown";
 }
+
+export function buildRouteProgress(
+  bus: any,
+  previousIndex: number | undefined
+): { progress: BusRouteProgress; nearestIndex: number } | null {
+  if (typeof bus.lat !== "number" || typeof bus.lng !== "number") return null;
+  if (corridorStops.length === 0) return null;
+
+  const nearestIndex = findNearestStopIndex(bus.lat, bus.lng);
+  const direction = resolveDirection(bus, nearestIndex, previousIndex);
+  const southbound = direction === "Southbound";
+
+  const stops: RouteStop[] = corridorStops.map((stop, i) => {
+    let status: StopStatus;
+    if (i === nearestIndex) {
+      status = "ARRIVING";
+    } else if (southbound) {
+      status = i > nearestIndex ? "DEPARTED" : "UPCOMING";
+    } else {
+      status = i < nearestIndex ? "DEPARTED" : "UPCOMING";
+    }
+    return { id: stop.id, name: stop.name, status };
+  });
+
+  const nextIndex = southbound ? nearestIndex - 1 : nearestIndex + 1;
+  const nextStop = corridorStops[nextIndex] ?? null;
+
+  return {
+    progress: {
+      busId: bus.id,
+      label: bus.label,
+      direction,
+      origin: southbound ? "Santa Cruz" : "Olongapo City",
+      destination: southbound ? "Olongapo City" : "Santa Cruz",
+      currentMunicipality: corridorStops[nearestIndex].name,
+      nextMunicipality: nextStop ? nextStop.name : null,
+      stops,
+    },
+    nearestIndex,
+  };
+}
