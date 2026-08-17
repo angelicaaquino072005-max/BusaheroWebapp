@@ -157,6 +157,8 @@ export default function BusMap() {
         />
        {liveBuses
           .filter((bus) => typeof bus.lat === "number" && typeof bus.lng === "number")
+          .filter((bus) => !String(bus.status ?? "").toLowerCase().includes("garage"))
+          .filter((bus) => (bus.lastUpdateMinutesAgo ?? 0) < 5)
           .map((bus) => {
             const isNoSignal = (bus.lastUpdateMinutesAgo ?? 0) >= 2;
             const isStopped = bus.speedKph === 0 || String(bus.status ?? "").toLowerCase() === "stopped";
