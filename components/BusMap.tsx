@@ -78,10 +78,24 @@ const userIcon = L.divIcon({
   iconAnchor: [17, 17],
 });
 
-function ZoomControls() {
+function ZoomControls({
+  mapStyle,
+  onToggleStyle,
+}: {
+  mapStyle: "streets" | "satellite";
+  onToggleStyle: () => void;
+}) {
   const map = useMap();
   return (
     <div className="absolute bottom-24 right-4 z-[400] flex flex-col gap-2 lg:bottom-4">
+      <button
+        onClick={onToggleStyle}
+        aria-label="Toggle satellite view"
+        className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-lg text-slate-600 shadow-md hover:bg-slate-50"
+        title={mapStyle === "streets" ? "Switch to satellite" : "Switch to street map"}
+      >
+        {mapStyle === "streets" ? "🛰️" : "🗺️"}
+      </button>
       <button
         onClick={() => map.setView([15.24, 120.1], 9)}
         aria-label="Recenter map"
@@ -111,6 +125,7 @@ export default function BusMap() {
   const [selectedBusId, setSelectedBusId] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   const [locationError, setLocationError] = useState(null);
+  const [mapStyle, setMapStyle] = useState<"streets" | "satellite">("streets");
   const { buses: liveBuses, loading: busesLoading } = useLiveBuses();
   const busHeadingRef = useRef({});
 
@@ -154,8 +169,17 @@ export default function BusMap() {
       className="h-full w-full"
     >
         <TileLayer
-          attribution='&copy; <a href="https://www.maptiler.com/copyright/" target="_blank" rel="noreferrer">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap contributors</a>'
-          url={`https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`}
+          key={mapStyle}
+          attribution={
+            mapStyle === "streets"
+              ? '&copy; <a href="https://www.maptiler.com/copyright/" target="_blank" rel="noreferrer">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap contributors</a>'
+              : '&copy; <a href="https://www.maptiler.com/copyright/" target="_blank" rel="noreferrer">MapTiler</a>'
+          }
+          url={
+            mapStyle === "streets"
+              ? `https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`
+              : `https://api.maptiler.com/tiles/satellite-v2/{z}/{x}/{y}.jpg?key=${MAPTILER_KEY}`
+          }
         />
 
         {/* Actual road-based route, Olongapo City -> Santa Cruz */}
@@ -224,7 +248,12 @@ export default function BusMap() {
           </Marker>
         )}
 
-        <ZoomControls />
+        <ZoomControls
+          mapStyle={mapStyle}
+          onToggleStyle={() =>
+            setMapStyle((prev) => (prev === "streets" ? "satellite" : "streets"))
+          }
+        />
       </MapContainer>
 
       {selectedBus && (
