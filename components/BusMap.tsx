@@ -173,17 +173,25 @@ export default function BusMap() {
             if (
               prevHeading &&
               typeof bus.lng === "number" &&
-              typeof prevHeading.lastLng === "number"
+              typeof bus.lat === "number" &&
+              typeof prevHeading.lastLng === "number" &&
+              typeof prevHeading.lastLat === "number"
             ) {
               const deltaLng = bus.lng - prevHeading.lastLng;
-              // Only update heading on a meaningful move, so GPS jitter while
-              // idle/stopped doesn't flip the icon back and forth.
-              if (Math.abs(deltaLng) > 0.00005) {
+              const deltaLat = bus.lat - prevHeading.lastLat;
+              // Only update heading when the move is meaningful AND mostly
+              // east-west (not a mostly north-south stretch with a slight
+              // road curve), so vertical segments don't cause false flips.
+              if (
+                Math.abs(deltaLng) > 0.00004 &&
+                Math.abs(deltaLng) > Math.abs(deltaLat) * 1.2
+              ) {
                 isFlipped = deltaLng < 0;
               }
             }
             busHeadingRef.current[bus.id] = {
               lastLng: typeof bus.lng === "number" ? bus.lng : prevHeading?.lastLng,
+              lastLat: typeof bus.lat === "number" ? bus.lat : prevHeading?.lastLat,
               flipped: isFlipped,
             };
 
