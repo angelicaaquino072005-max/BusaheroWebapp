@@ -12,53 +12,49 @@ import { useLiveBuses } from "@/lib/useLiveBuses";
 const routePositions = olongapoToSantaCruzRoute as LatLngTuple[];
 const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
 
+// Layout constants shared by all marker states. The vehicle image's own
+// CENTER must land exactly on the Leaflet anchor point, because CSS
+// rotate() pivots around an element's center — anchoring at the bottom
+// (like a non-rotated icon) makes the visible bus drift off the true
+// GPS position as soon as it rotates to a non-north heading.
+const VEHICLE_W = 36;
+const VEHICLE_H = 70;
+const ROTATOR_W = 70; // local wrapper the vehicle (+ beam) rotate inside
+const ROTATOR_H = 100;
+const PIVOT_X = ROTATOR_W / 2; // vehicle's center within the rotator, local coords
+const PIVOT_Y = VEHICLE_H / 2;
+const ANCHOR_X = 75; // where that pivot lands in the outer marker box
+const ANCHOR_Y = 120;
+const CONTAINER_W = 150;
+const CONTAINER_H = 190;
+
 function createBusIcon(label: string, isStopped: boolean, bearingDeg: number, isNoSignal?: boolean) {
-  const rotateStyle = `transform: rotate(${bearingDeg}deg);`;
+  const pillClass = isNoSignal ? "no-signal" : isStopped ? "stopped" : "";
+  const rotatorLeft = ANCHOR_X - PIVOT_X;
+  const rotatorTop = ANCHOR_Y - PIVOT_Y;
 
-  if (isNoSignal) {
-    return L.divIcon({
-      className: "",
-      html: `
-        <div class="bus-stopped-marker">
-          <div class="bus-status-pill no-signal">${label}</div>
-          <img src="/bus-icon.png" class="bus-marker-img no-signal" style="${rotateStyle}" />
-        </div>
-      `,
-      iconSize: [150, 116],
-      iconAnchor: [75, 116],
-      popupAnchor: [0, -116],
-    });
-  }
+  const beamHtml = isStopped || isNoSignal ? "" : `<div class="bus-live-beam"></div>`;
 
-  if (isStopped) {
-    return L.divIcon({
-      className: "",
-      html: `
-        <div class="bus-stopped-marker">
-          <div class="bus-status-pill stopped">${label}</div>
-          <img src="/bus-icon.png" class="bus-marker-img" style="${rotateStyle}" />
-        </div>
-      `,
-      iconSize: [150, 116],
-      iconAnchor: [75, 116],
-      popupAnchor: [0, -116],
-    });
-  }
+  const html = `
+    <div class="bus-marker-root">
+      <div class="bus-marker-pill ${pillClass}" style="left:${ANCHOR_X}px; top:${
+    rotatorTop - 10
+  }px;">${label}</div>
+      <div class="bus-marker-rotator" style="left:${rotatorLeft}px; top:${rotatorTop}px; width:${ROTATOR_W}px; height:${ROTATOR_H}px; transform-origin: ${PIVOT_X}px ${PIVOT_Y}px; transform: rotate(${bearingDeg}deg);">
+        ${beamHtml}
+        <img src="/bus-icon.png" class="bus-marker-vehicle${
+          isNoSignal ? " no-signal" : ""
+        }" style="left:${PIVOT_X}px; top:${PIVOT_Y}px;" />
+      </div>
+    </div>
+  `;
 
   return L.divIcon({
     className: "",
-    html: `
-      <div class="bus-live-marker">
-        <div class="bus-live-badge">
-          <div class="bus-live-pill">${label}</div>
-        </div>
-        <div class="bus-live-beam"></div>
-        <img src="/bus-icon.png" class="bus-live-vehicle" style="${rotateStyle}" />
-      </div>
-    `,
-    iconSize: [150, 104],
-    iconAnchor: [75, 104],
-    popupAnchor: [0, -104],
+    html,
+    iconSize: [CONTAINER_W, CONTAINER_H],
+    iconAnchor: [ANCHOR_X, ANCHOR_Y],
+    popupAnchor: [0, -ANCHOR_Y],
   });
 }
 
