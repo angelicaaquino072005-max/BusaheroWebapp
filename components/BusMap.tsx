@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
 import L from "leaflet";
 import { haversineKm } from "@/lib/data";
@@ -12,8 +12,7 @@ import { useLiveBuses } from "@/lib/useLiveBuses";
 const routePositions = olongapoToSantaCruzRoute as LatLngTuple[];
 const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
 
-function createBusIcon(label: string, isStopped: boolean, direction?: string, isNoSignal?: boolean) {
-  const isFlipped = String(direction ?? "").toLowerCase() === "south";
+function createBusIcon(label: string, isStopped: boolean, isFlipped: boolean, isNoSignal?: boolean) {
   const vehicleClass = isFlipped ? "bus-marker-img flipped" : "bus-marker-img";
   const liveVehicleClass = isFlipped ? "bus-live-vehicle flipped" : "bus-live-vehicle";
 
@@ -105,6 +104,7 @@ export default function BusMap() {
   const [userLocation, setUserLocation] = useState(null);
   const [locationError, setLocationError] = useState(null);
   const { buses: liveBuses, loading: busesLoading } = useLiveBuses();
+  const busHeadingRef = useRef({});
 
   useEffect(() => {
     if (!("geolocation" in navigator)) {
@@ -167,11 +167,31 @@ export default function BusMap() {
               : isStopped
               ? `${bus.label} · Stopped`
               : `${bus.label} · ${Math.round(bus.speedKph ?? 0)} km/h`;
+
+            const prevHeading = busHeadingRef.current[bus.id];
+            let isFlipped = prevHeading ? prevHeading.flipped : false;
+            if (
+              prevHeading &&
+              typeof bus.lng === "number" &&
+              typeof prevHeading.lastLng === "number"
+            ) {
+              const deltaLng = bus.lng - prevHeading.lastLng;
+              // Only update heading on a meaningful move, so GPS jitter while
+              // idle/stopped doesn't flip the icon back and forth.
+              if (Math.abs(deltaLng) > 0.00005) {
+                isFlipped = deltaLng < 0;
+              }
+            }
+            busHeadingRef.current[bus.id] = {
+              lastLng: typeof bus.lng === "number" ? bus.lng : prevHeading?.lastLng,
+              flipped: isFlipped,
+            };
+
             return (
               <Marker
                 key={bus.id}
                 position={[bus.lat, bus.lng]}
-                icon={createBusIcon(label, isStopped, bus.direction, isNoSignal)}
+                icon={createBusIcon(label, isStopped, isFlipped, isNoSignal)}
                 eventHandlers={{
                   click: () => setSelectedBusId(bus.id),
                 }}
