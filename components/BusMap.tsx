@@ -24,9 +24,9 @@ function createBusIcon(label: string, isStopped: boolean, bearingDeg: number, is
           <img src="/bus-icon.png" class="bus-marker-img no-signal" style="${rotateStyle}" />
         </div>
       `,
-      iconSize: [150, 84],
-      iconAnchor: [75, 84],
-      popupAnchor: [0, -84],
+      iconSize: [150, 116],
+      iconAnchor: [75, 116],
+      popupAnchor: [0, -116],
     });
   }
 
@@ -39,9 +39,9 @@ function createBusIcon(label: string, isStopped: boolean, bearingDeg: number, is
           <img src="/bus-icon.png" class="bus-marker-img" style="${rotateStyle}" />
         </div>
       `,
-      iconSize: [140, 84],
-      iconAnchor: [70, 84],
-      popupAnchor: [0, -84],
+      iconSize: [150, 116],
+      iconAnchor: [75, 116],
+      popupAnchor: [0, -116],
     });
   }
 
@@ -56,9 +56,9 @@ function createBusIcon(label: string, isStopped: boolean, bearingDeg: number, is
         <img src="/bus-icon.png" class="bus-live-vehicle" style="${rotateStyle}" />
       </div>
     `,
-    iconSize: [150, 70],
-    iconAnchor: [75, 70],
-    popupAnchor: [0, -70],
+    iconSize: [150, 104],
+    iconAnchor: [75, 104],
+    popupAnchor: [0, -104],
   });
 }
 
