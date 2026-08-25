@@ -12,9 +12,8 @@ import { useLiveBuses } from "@/lib/useLiveBuses";
 const routePositions = olongapoToSantaCruzRoute as LatLngTuple[];
 const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
 
-function createBusIcon(label: string, isStopped: boolean, isFlipped: boolean, isNoSignal?: boolean) {
-  const vehicleClass = isFlipped ? "bus-marker-img flipped" : "bus-marker-img";
-  const liveVehicleClass = isFlipped ? "bus-live-vehicle flipped" : "bus-live-vehicle";
+function createBusIcon(label: string, isStopped: boolean, bearingDeg: number, isNoSignal?: boolean) {
+  const rotateStyle = `transform: rotate(${bearingDeg}deg);`;
 
   if (isNoSignal) {
     return L.divIcon({
@@ -22,7 +21,7 @@ function createBusIcon(label: string, isStopped: boolean, isFlipped: boolean, is
       html: `
         <div class="bus-stopped-marker">
           <div class="bus-status-pill no-signal">${label}</div>
-          <img src="/bus-icon.png" class="${vehicleClass} no-signal" />
+          <img src="/bus-icon.png" class="bus-marker-img no-signal" style="${rotateStyle}" />
         </div>
       `,
       iconSize: [150, 84],
@@ -37,7 +36,7 @@ function createBusIcon(label: string, isStopped: boolean, isFlipped: boolean, is
       html: `
         <div class="bus-stopped-marker">
           <div class="bus-status-pill stopped">${label}</div>
-          <img src="/bus-icon.png" class="${vehicleClass}" />
+          <img src="/bus-icon.png" class="bus-marker-img" style="${rotateStyle}" />
         </div>
       `,
       iconSize: [140, 84],
@@ -53,14 +52,27 @@ function createBusIcon(label: string, isStopped: boolean, isFlipped: boolean, is
         <div class="bus-live-badge">
           <div class="bus-live-pill">${label}</div>
         </div>
-        <div class="bus-live-beam${isFlipped ? " flipped" : ""}"></div>
-        <img src="/bus-icon.png" class="${liveVehicleClass}" />
+        <div class="bus-live-beam"></div>
+        <img src="/bus-icon.png" class="bus-live-vehicle" style="${rotateStyle}" />
       </div>
     `,
     iconSize: [150, 70],
     iconAnchor: [75, 70],
     popupAnchor: [0, -70],
   });
+}
+
+// Standard compass bearing (0-360, clockwise from north) between two points.
+function calculateBearing(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const toDeg = (rad: number) => (rad * 180) / Math.PI;
+  const dLng = toRad(lng2 - lng1);
+  const y = Math.sin(dLng) * Math.cos(toRad(lat2));
+  const x =
+    Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) -
+    Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLng);
+  const brng = toDeg(Math.atan2(y, x));
+  return (brng + 360) % 360;
 }
 
 const userIcon = L.divIcon({
@@ -169,7 +181,7 @@ export default function BusMap() {
               : `${bus.label} · ${Math.round(bus.speedKph ?? 0)} km/h`;
 
             const prevHeading = busHeadingRef.current[bus.id];
-            let isFlipped = prevHeading ? prevHeading.flipped : false;
+            let bearing = prevHeading ? prevHeading.bearing : 0;
             if (
               prevHeading &&
               typeof bus.lng === "number" &&
@@ -179,27 +191,28 @@ export default function BusMap() {
             ) {
               const deltaLng = bus.lng - prevHeading.lastLng;
               const deltaLat = bus.lat - prevHeading.lastLat;
-              // Only update heading when the move is meaningful AND mostly
-              // east-west (not a mostly north-south stretch with a slight
-              // road curve), so vertical segments don't cause false flips.
-              if (
-                Math.abs(deltaLng) > 0.00004 &&
-                Math.abs(deltaLng) > Math.abs(deltaLat) * 1.2
-              ) {
-                isFlipped = deltaLng < 0;
+              // Only recompute heading on a meaningful move, so GPS jitter
+              // while idle/stopped doesn't spin the icon back and forth.
+              if (Math.abs(deltaLng) > 0.00003 || Math.abs(deltaLat) > 0.00003) {
+                bearing = calculateBearing(
+                  prevHeading.lastLat,
+                  prevHeading.lastLng,
+                  bus.lat,
+                  bus.lng
+                );
               }
             }
             busHeadingRef.current[bus.id] = {
               lastLng: typeof bus.lng === "number" ? bus.lng : prevHeading?.lastLng,
               lastLat: typeof bus.lat === "number" ? bus.lat : prevHeading?.lastLat,
-              flipped: isFlipped,
+              bearing,
             };
 
             return (
               <Marker
                 key={bus.id}
                 position={[bus.lat, bus.lng]}
-                icon={createBusIcon(label, isStopped, isFlipped, isNoSignal)}
+                icon={createBusIcon(label, isStopped, bearing, isNoSignal)}
                 eventHandlers={{
                   click: () => setSelectedBusId(bus.id),
                 }}
