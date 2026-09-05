@@ -42,17 +42,17 @@ function createBusIcon(
   const beamHtml = isStopped || isNoSignal ? "" : `<div class="bus-live-beam"></div>`;
 
   const dir = String(direction ?? "").toLowerCase();
-  const directionBadge = dir.includes("north")
-    ? `<span class="bus-direction-badge north">▲</span>`
+  const directionChip = dir.includes("north")
+    ? `<span class="bus-direction-chip north">▲</span>`
     : dir.includes("south")
-    ? `<span class="bus-direction-badge south">▼</span>`
+    ? `<span class="bus-direction-chip south">▼</span>`
     : "";
 
   const html = `
     <div class="bus-marker-root">
       <div class="bus-marker-pill ${pillClass}" style="left:${ANCHOR_X}px; top:${
     rotatorTop - 10
-  }px; position:absolute;">${label}${directionBadge}</div>
+  }px;">${directionChip}<span>${label}</span></div>
       <div class="bus-marker-rotator" style="left:${rotatorLeft}px; top:${rotatorTop}px; width:${ROTATOR_W}px; height:${ROTATOR_H}px; transform-origin: ${PIVOT_X}px ${PIVOT_Y}px; transform: rotate(${bearingDeg}deg);">
         ${beamHtml}
         <img src="/bus-icon.png" class="bus-marker-vehicle${

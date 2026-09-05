@@ -148,15 +148,21 @@ body {
   }
 }
 
-/* pill: never rotates, always upright and centered above the vehicle */
+/* pill: never rotates, always upright and centered above the vehicle.
+   display:inline-flex so the direction chip sits inline with the label,
+   inside the pill's own bounds — nothing spills outside or overlaps a
+   neighboring marker's pill when two buses are close together. */
 .bus-marker-pill {
   position: absolute;
   transform: translate(-50%, -100%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background: white;
   color: #0f172a;
   font-weight: 700;
   font-size: 12px;
-  padding: 10px 18px;
+  padding: 8px 16px;
   border-radius: 16px;
   box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25);
   white-space: nowrap;
@@ -193,29 +199,25 @@ body {
   border-top-color: #64748b;
 }
 
-/* small always-visible direction indicator on the pill corner */
-.bus-direction-badge {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  width: 20px;
-  height: 20px;
-  border-radius: 999px;
+/* direction chip: sits inline inside the pill, to the left of the
+   label text, instead of floating outside the pill's corner. */
+.bus-direction-chip {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  font-size: 9px;
   line-height: 1;
   color: white;
-  border: 2px solid white;
-  box-shadow: 0 2px 5px rgba(15, 23, 42, 0.35);
-  z-index: 2;
 }
 
-.bus-direction-badge.north {
+.bus-direction-chip.north {
   background: #2563eb;
 }
 
-.bus-direction-badge.south {
+.bus-direction-chip.south {
   background: #f97316;
 }
