@@ -192,3 +192,30 @@ body {
 .bus-marker-pill.no-signal::after {
   border-top-color: #64748b;
 }
+
+/* small always-visible direction indicator on the pill corner */
+.bus-direction-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  line-height: 1;
+  color: white;
+  border: 2px solid white;
+  box-shadow: 0 2px 5px rgba(15, 23, 42, 0.35);
+  z-index: 2;
+}
+
+.bus-direction-badge.north {
+  background: #2563eb;
+}
+
+.bus-direction-badge.south {
+  background: #f97316;
+}

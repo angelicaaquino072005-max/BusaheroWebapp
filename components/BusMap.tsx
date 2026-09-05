@@ -28,18 +28,31 @@ const ANCHOR_Y = 120;
 const CONTAINER_W = 150;
 const CONTAINER_H = 190;
 
-function createBusIcon(label: string, isStopped: boolean, bearingDeg: number, isNoSignal?: boolean) {
+function createBusIcon(
+  label: string,
+  isStopped: boolean,
+  bearingDeg: number,
+  isNoSignal?: boolean,
+  direction?: string
+) {
   const pillClass = isNoSignal ? "no-signal" : isStopped ? "stopped" : "";
   const rotatorLeft = ANCHOR_X - PIVOT_X;
   const rotatorTop = ANCHOR_Y - PIVOT_Y;
 
   const beamHtml = isStopped || isNoSignal ? "" : `<div class="bus-live-beam"></div>`;
 
+  const dir = String(direction ?? "").toLowerCase();
+  const directionBadge = dir.includes("north")
+    ? `<span class="bus-direction-badge north">▲</span>`
+    : dir.includes("south")
+    ? `<span class="bus-direction-badge south">▼</span>`
+    : "";
+
   const html = `
     <div class="bus-marker-root">
       <div class="bus-marker-pill ${pillClass}" style="left:${ANCHOR_X}px; top:${
     rotatorTop - 10
-  }px;">${label}</div>
+  }px; position:absolute;">${label}${directionBadge}</div>
       <div class="bus-marker-rotator" style="left:${rotatorLeft}px; top:${rotatorTop}px; width:${ROTATOR_W}px; height:${ROTATOR_H}px; transform-origin: ${PIVOT_X}px ${PIVOT_Y}px; transform: rotate(${bearingDeg}deg);">
         ${beamHtml}
         <img src="/bus-icon.png" class="bus-marker-vehicle${
@@ -232,7 +245,7 @@ export default function BusMap() {
               <Marker
                 key={bus.id}
                 position={[bus.lat, bus.lng]}
-                icon={createBusIcon(label, isStopped, bearing, isNoSignal)}
+                icon={createBusIcon(label, isStopped, bearing, isNoSignal, bus.direction)}
                 eventHandlers={{
                   click: () => setSelectedBusId(bus.id),
                 }}
