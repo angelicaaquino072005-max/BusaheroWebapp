@@ -221,3 +221,72 @@ body {
 .bus-direction-chip.south {
   background: #f97316;
 }
+
+/* ===== Route Planner per-bus map: municipality pins that reflect
+   whether this specific bus has departed, is arriving at, or hasn't
+   yet reached that stop. ===== */
+.route-stop-pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  color: white;
+}
+
+.route-stop-pin.departed {
+  width: 18px;
+  height: 18px;
+  background: #16a34a;
+  border: 2px solid white;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.35);
+}
+
+.route-stop-pin.upcoming {
+  width: 14px;
+  height: 14px;
+  background: #ffffff;
+  border: 2px solid #cbd5e1;
+}
+
+.route-stop-pin.arriving {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  background: #f59e0b;
+  border: 3px solid white;
+  box-shadow: 0 1px 6px rgba(245, 158, 11, 0.55);
+}
+
+.route-stop-pulse {
+  position: absolute;
+  inset: -6px;
+  border-radius: 999px;
+  border: 2px solid #f59e0b;
+  animation: route-stop-pulse 1.6s ease-out infinite;
+}
+
+@keyframes route-stop-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.route-bus-dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #1e3a8a;
+  border: 2px solid white;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.4);
+  font-size: 14px;
+}

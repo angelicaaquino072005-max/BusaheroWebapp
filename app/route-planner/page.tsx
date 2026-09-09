@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { useLiveBuses } from "@/lib/useLiveBuses";
 import { buildRouteProgress } from "@/lib/routePlanner";
 import {
@@ -10,6 +11,18 @@ import {
   IconBuilding,
   IconFlag,
 } from "@/components/Icons";
+
+// Each bus renders its own map instance, so this is dynamically imported
+// with ssr disabled the same way the Live Tracking map is — Leaflet needs
+// direct access to `window`, which isn't available during server render.
+const RouteProgressMap = dynamic(() => import("@/components/RouteProgressMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-56 w-full items-center justify-center rounded-xl border border-slate-100 bg-slate-50 text-xs text-slate-400 sm:h-64">
+      Loading map…
+    </div>
+  ),
+});
 
 const statusStyles = {
   DEPARTED: "bg-emerald-50 text-emerald-600",
@@ -46,6 +59,10 @@ export default function RoutePlannerPage() {
       return result.progress;
     })
     .filter(Boolean);
+
+  // Looked up per render so each bus's card can pass its own live
+  // lat/lng to its own map instance below.
+  const busById = Object.fromEntries(buses.map((bus) => [bus.id, bus]));
 
   if (loading) {
     return (
@@ -108,7 +125,19 @@ export default function RoutePlannerPage() {
           </button>
         </div>
 
-        <div className="mt-6 divide-y divide-slate-100 rounded-xl border border-slate-100">
+        <div className="mt-5">
+          <RouteProgressMap
+            key={route.busId}
+            stops={route.stops}
+            bus={{
+              lat: busById[route.busId]?.lat ?? null,
+              lng: busById[route.busId]?.lng ?? null,
+              label: route.label,
+            }}
+          />
+        </div>
+
+        <div className="mt-5 divide-y divide-slate-100 rounded-xl border border-slate-100">
           <LegRow icon={IconBuilding} label="Current Municipality" value={route.currentMunicipality} status="ARRIVING" />
           <LegRow icon={IconFlag} label="Next Municipality" value={route.nextMunicipality ?? "—"} status="UPCOMING" />
         </div>

@@ -25,6 +25,8 @@ export type RouteStop = {
   id: string;
   name: string;
   status: StopStatus;
+  lat: number;
+  lng: number;
 };
 
 export type BusRouteProgress = {
@@ -159,7 +161,7 @@ export function buildRouteProgress(
     } else {
       status = i < nearestIndex ? "DEPARTED" : "UPCOMING";
     }
-    return { id: stop.id, name: stop.name, status };
+    return { id: stop.id, name: stop.name, status, lat: stop.lat, lng: stop.lng };
   });
 
   const nextIndex = southbound ? nearestIndex - 1 : nearestIndex + 1;
