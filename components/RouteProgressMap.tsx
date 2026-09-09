@@ -82,7 +82,7 @@ function FitToRoute({ stops }: { stops: RouteStop[] }) {
 // the rest stay plain until it reaches them.
 export default function RouteProgressMap({ stops, bus }: RouteProgressMapProps) {
   return (
-    <div className="mx-auto h-[440px] w-full max-w-xs overflow-hidden rounded-xl border border-slate-100 sm:h-[520px] sm:max-w-sm">
+    <div className="relative h-[420px] w-full overflow-hidden rounded-xl border border-slate-100 sm:h-[560px]">
       <MapContainer
         center={[15.2, 120.0]}
         zoom={9}
@@ -120,6 +120,38 @@ export default function RouteProgressMap({ stops, bus }: RouteProgressMapProps) 
 
         <FitToRoute stops={stops} />
       </MapContainer>
+
+      {/* Small floating legend listing every town, so the full corridor
+          list is visible at a glance without leaving the map. */}
+      <div className="absolute right-3 top-3 z-[400] max-h-[85%] w-36 overflow-y-auto rounded-xl border border-slate-200 bg-white/95 p-2 shadow-lg backdrop-blur sm:w-40">
+        <p className="mb-1.5 px-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+          Towns
+        </p>
+        <div className="space-y-0.5">
+          {stops.map((stop) => (
+            <div key={stop.id} className="flex items-center gap-1.5 rounded-lg px-1 py-1">
+              <span
+                className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-bold text-white ${
+                  stop.status === "DEPARTED"
+                    ? "bg-emerald-500"
+                    : stop.status === "ARRIVING"
+                    ? "bg-amber-500"
+                    : "bg-slate-300"
+                }`}
+              >
+                {stop.status === "DEPARTED" ? "✓" : ""}
+              </span>
+              <span
+                className={`truncate text-xs ${
+                  stop.status === "UPCOMING" ? "text-slate-400" : "font-medium text-slate-700"
+                }`}
+              >
+                {stop.name}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
