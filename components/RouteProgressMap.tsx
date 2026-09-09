@@ -68,7 +68,7 @@ function FitToRoute({ stops }: { stops: RouteStop[] }) {
     ];
     if (points.length === 0) return;
     const bounds = L.latLngBounds(points);
-    map.fitBounds(bounds, { padding: [24, 24] });
+    map.fitBounds(bounds, { padding: [16, 16] });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -82,7 +82,7 @@ function FitToRoute({ stops }: { stops: RouteStop[] }) {
 // the rest stay plain until it reaches them.
 export default function RouteProgressMap({ stops, bus }: RouteProgressMapProps) {
   return (
-    <div className="h-56 w-full overflow-hidden rounded-xl border border-slate-100 sm:h-64">
+    <div className="mx-auto h-[440px] w-full max-w-xs overflow-hidden rounded-xl border border-slate-100 sm:h-[520px] sm:max-w-sm">
       <MapContainer
         center={[15.2, 120.0]}
         zoom={9}
