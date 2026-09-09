@@ -6,7 +6,6 @@ import L from "leaflet";
 import type { LatLngTuple } from "leaflet";
 import { olongapoToSantaCruzRoute } from "@/lib/routes";
 import type { RouteStop, StopStatus } from "@/lib/routePlanner";
-
 const routePositions = olongapoToSantaCruzRoute as LatLngTuple[];
 const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
 
@@ -75,6 +74,33 @@ function FitToRoute({ stops }: { stops: RouteStop[] }) {
   return null;
 }
 
+// Small +/- buttons so the map can be zoomed in and out without relying
+// on scroll-wheel or pinch gestures, which stay disabled here so the map
+// doesn't hijack page scrolling.
+function ZoomControls() {
+  const map = useMap();
+  return (
+    <div className="absolute bottom-3 right-3 z-[400] flex flex-col gap-1.5">
+      <button
+        type="button"
+        onClick={() => map.zoomIn()}
+        aria-label="Zoom in"
+        className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-base font-semibold text-slate-600 shadow-md hover:bg-slate-50"
+      >
+        +
+      </button>
+      <button
+        type="button"
+        onClick={() => map.zoomOut()}
+        aria-label="Zoom out"
+        className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-base font-semibold text-slate-600 shadow-md hover:bg-slate-50"
+      >
+        −
+      </button>
+    </div>
+  );
+}
+
 // A small, self-contained map scoped to a single bus. Every bus in the
 // Route Planner gets its own instance of this component, so each one
 // shows only that bus's own progress along the corridor — municipalities
@@ -119,6 +145,7 @@ export default function RouteProgressMap({ stops, bus }: RouteProgressMapProps) 
         )}
 
         <FitToRoute stops={stops} />
+        <ZoomControls />
       </MapContainer>
 
       {/* Small floating legend listing every town, so the full corridor
