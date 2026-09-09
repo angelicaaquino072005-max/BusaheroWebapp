@@ -53,21 +53,24 @@ const busDotIcon = L.divIcon({
   iconAnchor: [14, 14],
 });
 
-// Refits the map to the stops + bus position whenever the bus moves past
-// a new municipality, so the view always frames what's currently relevant
-// for this specific bus instead of the whole corridor.
-function FitToProgress({ stops, bus }: RouteProgressMapProps) {
+// Frames the entire Santa Cruz <-> Olongapo corridor once, using the
+// full road route plus every municipality stop. Fits only on mount (not
+// on every bus update) so the map always shows the whole corridor as a
+// stable reference instead of snapping to a tight zoom around wherever
+// the bus currently is.
+function FitToRoute({ stops }: { stops: RouteStop[] }) {
   const map = useMap();
-  const statusKey = stops.map((s) => s.status).join(",");
 
   useEffect(() => {
-    const points: LatLngTuple[] = stops.map((s) => [s.lat, s.lng]);
-    if (bus?.lat != null && bus?.lng != null) points.push([bus.lat, bus.lng]);
+    const points: LatLngTuple[] = [
+      ...routePositions,
+      ...stops.map((s) => [s.lat, s.lng] as LatLngTuple),
+    ];
     if (points.length === 0) return;
     const bounds = L.latLngBounds(points);
-    map.fitBounds(bounds, { padding: [30, 30] });
+    map.fitBounds(bounds, { padding: [24, 24] });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [statusKey, bus?.lat, bus?.lng]);
+  }, []);
 
   return null;
 }
@@ -94,7 +97,7 @@ export default function RouteProgressMap({ stops, bus }: RouteProgressMapProps) 
 
         <Polyline
           positions={routePositions}
-          pathOptions={{ color: "#94a3b8", weight: 3, opacity: 0.55 }}
+          pathOptions={{ color: "#1e3a8a", weight: 4, opacity: 0.85 }}
         />
 
         {stops.map((stop) => (
@@ -115,7 +118,7 @@ export default function RouteProgressMap({ stops, bus }: RouteProgressMapProps) 
           </Marker>
         )}
 
-        <FitToProgress stops={stops} bus={bus} />
+        <FitToRoute stops={stops} />
       </MapContainer>
     </div>
   );
