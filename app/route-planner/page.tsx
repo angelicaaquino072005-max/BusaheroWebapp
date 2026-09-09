@@ -4,13 +4,7 @@ import { useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useLiveBuses } from "@/lib/useLiveBuses";
 import { buildRouteProgress } from "@/lib/routePlanner";
-import {
-  IconChevronLeft,
-  IconChevronRight,
-  IconChevronDown,
-  IconBuilding,
-  IconFlag,
-} from "@/components/Icons";
+import { IconChevronLeft, IconChevronRight } from "@/components/Icons";
 
 // Each bus renders its own map instance, so this is dynamically imported
 // with ssr disabled the same way the Live Tracking map is — Leaflet needs
@@ -18,33 +12,15 @@ import {
 const RouteProgressMap = dynamic(() => import("@/components/RouteProgressMap"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-56 w-full items-center justify-center rounded-xl border border-slate-100 bg-slate-50 text-xs text-slate-400 sm:h-64">
+    <div className="flex h-[420px] w-full items-center justify-center rounded-xl border border-slate-100 bg-slate-50 text-xs text-slate-400 sm:h-[560px]">
       Loading map…
     </div>
   ),
 });
 
-const statusStyles = {
-  DEPARTED: "bg-emerald-50 text-emerald-600",
-  ARRIVING: "bg-amber-50 text-amber-600",
-  UPCOMING: "bg-slate-100 text-slate-500",
-};
-
-function StatusBadge({ status }) {
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${statusStyles[status]}`}
-    >
-      {status === "DEPARTED" && "✓ "}
-      {status}
-    </span>
-  );
-}
-
 export default function RoutePlannerPage() {
   const { buses, loading } = useLiveBuses();
   const [index, setIndex] = useState(0);
-  const [openStop, setOpenStop] = useState(null);
 
   // Remembers each bus's last known nearest-stop index across renders,
   // so direction can be inferred from real movement instead of trusting
@@ -85,7 +61,6 @@ export default function RoutePlannerPage() {
 
   const go = (delta) => {
     setIndex((prev) => (prev + delta + routes.length) % routes.length);
-    setOpenStop(null);
   };
 
   return (
@@ -136,60 +111,7 @@ export default function RoutePlannerPage() {
             }}
           />
         </div>
-
-        <div className="mt-5 divide-y divide-slate-100 rounded-xl border border-slate-100">
-          <LegRow icon={IconBuilding} label="Current Municipality" value={route.currentMunicipality} status="ARRIVING" />
-          <LegRow icon={IconFlag} label="Next Municipality" value={route.nextMunicipality ?? "—"} status="UPCOMING" />
-        </div>
-
-        <div className="mt-4 divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-100">
-          {route.stops.map((stop) => {
-            const isOpen = openStop === stop.id;
-            return (
-              <div key={stop.id}>
-                <button
-                  onClick={() => setOpenStop(isOpen ? null : stop.id)}
-                  className="flex w-full items-center gap-3 px-4 py-3.5 text-left hover:bg-slate-50"
-                >
-                  <span
-                    className={`h-2.5 w-2.5 rounded-full ${
-                      stop.status === "UPCOMING" ? "bg-slate-300" : "bg-brand"
-                    }`}
-                  />
-                  <span className="flex-1 text-sm font-medium text-slate-800">{stop.name}</span>
-                  <StatusBadge status={stop.status} />
-                  <IconChevronDown
-                    size={16}
-                    className={`text-slate-400 transition-transform ${isOpen ? "rotate-180" : ""}`}
-                  />
-                </button>
-                {isOpen && (
-                  <div className="bg-slate-50 px-11 pb-3 text-xs text-slate-500">
-                    {stop.status === "DEPARTED" && "The bus has already left this stop."}
-                    {stop.status === "ARRIVING" && "The bus is currently near this stop."}
-                    {stop.status === "UPCOMING" && "The bus has not reached this stop yet."}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
       </div>
-    </div>
-  );
-}
-
-function LegRow({ icon: Icon, label, value, status }) {
-  return (
-    <div className="flex items-center gap-3 px-4 py-3.5">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-50 text-brand">
-        <Icon size={17} />
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="text-xs text-slate-400">{label}</p>
-        <p className="truncate text-sm font-semibold text-slate-800">{value}</p>
-      </div>
-      <StatusBadge status={status} />
     </div>
   );
 }
