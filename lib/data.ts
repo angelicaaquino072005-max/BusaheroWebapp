@@ -1,26 +1,24 @@
-// Municipality coordinates below use verified town-center reference
-// points (parish church / municipal hall / PhilAtlas town-center
-// figures) instead of the earlier hand-typed values. Several of the
-// old entries were displaced from their real-world location — most
-// notably Santa Cruz, which was off by roughly 12.7 km south of the
-// actual town, and Botolan/Cabangan/San Felipe/San Narciso, which
-// were 12-17 km too far inland/east. That's why bus and stop markers
-// on the map looked wrong.
+// Municipality coordinates now match the mobile app's authoritative
+// `highwayRoute` waypoint list exactly (the same source used to draw
+// the actual road polyline in lib/routes.ts), instead of independently
+// looked-up town-center references. That list has one extra waypoint
+// (15.11103, 120.064008, a road bend between San Felipe and Cabangan)
+// that isn't a town, so it's intentionally excluded here.
 export const municipalities = [
-  { id: "iba", name: "Iba", lat: 15.3259, lng: 119.9798 },
-  { id: "botolan", name: "Botolan", lat: 15.2896, lng: 120.0245 },
-  { id: "cabangan", name: "Cabangan", lat: 15.1581, lng: 120.0553 },
-  { id: "san-felipe", name: "San Felipe", lat: 15.0611, lng: 120.0703 },
-  { id: "san-narciso", name: "San Narciso", lat: 15.0167, lng: 120.0833 },
-  { id: "san-antonio", name: "San Antonio", lat: 14.9486, lng: 120.0864 },
-  { id: "san-marcelino", name: "San Marcelino", lat: 14.9742, lng: 120.1573 },
-  { id: "castillejos", name: "Castillejos", lat: 14.9333, lng: 120.2000 },
-  { id: "subic", name: "Subic", lat: 14.8769, lng: 120.2328 },
-  { id: "olongapo", name: "Olongapo City", lat: 14.8389, lng: 120.2834 },
-  { id: "palauig", name: "Palauig", lat: 15.4336, lng: 119.9083 },
-  { id: "masinloc", name: "Masinloc", lat: 15.5377, lng: 119.9489 },
-  { id: "candelaria", name: "Candelaria", lat: 15.6300, lng: 119.9300 },
-  { id: "santa-cruz", name: "Santa Cruz", lat: 15.7728, lng: 119.9053 },
+  { id: "iba", name: "Iba", lat: 15.3203357, lng: 119.9873523 },
+  { id: "botolan", name: "Botolan", lat: 15.28835, lng: 120.026484 },
+  { id: "cabangan", name: "Cabangan", lat: 15.159232, lng: 120.055168 },
+  { id: "san-felipe", name: "San Felipe", lat: 15.060799, lng: 120.069908 },
+  { id: "san-narciso", name: "San Narciso", lat: 15.015925, lng: 120.079307 },
+  { id: "san-antonio", name: "San Antonio", lat: 14.948246, lng: 120.08972 },
+  { id: "san-marcelino", name: "San Marcelino", lat: 14.97371, lng: 120.155868 },
+  { id: "castillejos", name: "Castillejos", lat: 14.93229, lng: 120.200586 },
+  { id: "subic", name: "Subic", lat: 14.878507, lng: 120.234398 },
+  { id: "olongapo", name: "Olongapo City", lat: 14.838879, lng: 120.28344 },
+  { id: "palauig", name: "Palauig", lat: 15.41719, lng: 119.953236 },
+  { id: "masinloc", name: "Masinloc", lat: 15.532287, lng: 119.957898 },
+  { id: "candelaria", name: "Candelaria", lat: 15.606962, lng: 119.937914 },
+  { id: "santa-cruz", name: "Santa Cruz", lat: 15.773003, lng: 119.905279 },
 ];
 const byId = Object.fromEntries(municipalities.map((m) => [m.id, m]));
 export const getMunicipality = (id) => byId[id];
