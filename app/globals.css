@@ -278,43 +278,46 @@ body {
 /* ===== Route Planner per-bus map: municipality pins that reflect
    whether this specific bus has departed, is arriving at, or hasn't
    yet reached that stop. ===== */
-.route-stop-pin {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  font-size: 10px;
-  font-weight: 700;
-  color: white;
-}
-
-.route-stop-pin.departed {
-  width: 18px;
-  height: 18px;
-  background: #16a34a;
-  border: 2px solid white;
-  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.35);
-}
-
-.route-stop-pin.upcoming {
-  width: 14px;
-  height: 14px;
-  background: #ffffff;
-  border: 2px solid #cbd5e1;
-}
-
-.route-stop-pin.arriving {
+/* Flag markers for each municipality stop. The pole's base (bottom
+   center) is the actual anchor point on the map, matching how a
+   dropped pin works. */
+.route-flag {
   position: relative;
-  width: 22px;
-  height: 22px;
-  background: #f59e0b;
-  border: 3px solid white;
-  box-shadow: 0 1px 6px rgba(245, 158, 11, 0.55);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
 }
 
-.route-stop-pulse {
+.route-flag svg {
+  filter: drop-shadow(0 1px 2px rgba(15, 23, 42, 0.35));
+}
+
+/* Flag cloth waves gently, like it's fluttering in the wind. Anchored
+   at the pole edge so it doesn't visually detach from the pole while
+   it skews. */
+.route-flag-cloth {
+  transform-box: fill-box;
+  transform-origin: 0% 50%;
+  animation: route-flag-wave 1.8s ease-in-out infinite;
+}
+
+@keyframes route-flag-wave {
+  0%,
+  100% {
+    transform: skewY(0deg) scaleX(1);
+  }
+  50% {
+    transform: skewY(9deg) scaleX(0.93);
+  }
+}
+
+.route-flag .route-stop-pulse {
   position: absolute;
-  inset: -6px;
+  bottom: -2px;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
   border-radius: 999px;
   border: 2px solid #f59e0b;
   animation: route-stop-pulse 1.6s ease-out infinite;

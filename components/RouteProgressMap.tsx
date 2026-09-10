@@ -21,28 +21,52 @@ type RouteProgressMapProps = {
   bus: BusPosition | null;
 };
 
-function stopIcon(status: StopStatus) {
+function stopIcon(status: StopStatus, index: number) {
+  const delay = `${(index % 5) * 0.12}s`;
+
   if (status === "DEPARTED") {
     return L.divIcon({
       className: "",
-      html: `<div class="route-stop-pin departed">✓</div>`,
-      iconSize: [18, 18],
-      iconAnchor: [9, 9],
+      html: `
+        <div class="route-flag departed">
+          <svg width="16" height="22" viewBox="0 0 16 22" xmlns="http://www.w3.org/2000/svg">
+            <line x1="2" y1="21" x2="2" y2="2" stroke="#334155" stroke-width="1.6" stroke-linecap="round" />
+            <path class="route-flag-cloth" style="animation-delay:${delay};" d="M2.5 2.5 L14 6 L2.5 9.5 Z" fill="#16a34a" stroke="#15803d" stroke-width="0.5" />
+          </svg>
+        </div>
+      `,
+      iconSize: [16, 22],
+      iconAnchor: [2, 21],
     });
   }
   if (status === "ARRIVING") {
     return L.divIcon({
       className: "",
-      html: `<div class="route-stop-pin arriving"><span class="route-stop-pulse"></span></div>`,
-      iconSize: [22, 22],
-      iconAnchor: [11, 11],
+      html: `
+        <div class="route-flag arriving">
+          <span class="route-stop-pulse"></span>
+          <svg width="18" height="24" viewBox="0 0 18 24" xmlns="http://www.w3.org/2000/svg">
+            <line x1="2" y1="23" x2="2" y2="2" stroke="#334155" stroke-width="1.8" stroke-linecap="round" />
+            <path class="route-flag-cloth" style="animation-delay:${delay};" d="M2.5 2.5 L16 6.5 L2.5 10.5 Z" fill="#f59e0b" stroke="#d97706" stroke-width="0.5" />
+          </svg>
+        </div>
+      `,
+      iconSize: [18, 24],
+      iconAnchor: [2, 23],
     });
   }
   return L.divIcon({
     className: "",
-    html: `<div class="route-stop-pin upcoming"></div>`,
-    iconSize: [14, 14],
-    iconAnchor: [7, 7],
+    html: `
+      <div class="route-flag upcoming">
+        <svg width="14" height="20" viewBox="0 0 14 20" xmlns="http://www.w3.org/2000/svg">
+          <line x1="2" y1="19" x2="2" y2="3" stroke="#94a3b8" stroke-width="1.4" stroke-linecap="round" />
+          <path class="route-flag-cloth" style="animation-delay:${delay};" d="M2.5 3 L12 6 L2.5 9 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="0.5" />
+        </svg>
+      </div>
+    `,
+    iconSize: [14, 20],
+    iconAnchor: [2, 19],
   });
 }
 
@@ -139,8 +163,8 @@ export default function RouteProgressMap({ stops, bus }: RouteProgressMapProps) 
           pathOptions={{ color: "#1e3a8a", weight: 4, opacity: 0.85 }}
         />
 
-        {stops.map((stop) => (
-          <Marker key={stop.id} position={[stop.lat, stop.lng]} icon={stopIcon(stop.status)}>
+        {stops.map((stop, i) => (
+          <Marker key={stop.id} position={[stop.lat, stop.lng]} icon={stopIcon(stop.status, i)}>
             <Tooltip direction="top" offset={[0, -6]} opacity={1}>
               {stop.name}
             </Tooltip>
