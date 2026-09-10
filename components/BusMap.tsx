@@ -39,7 +39,10 @@ function createBusIcon(
   const rotatorLeft = ANCHOR_X - PIVOT_X;
   const rotatorTop = ANCHOR_Y - PIVOT_Y;
 
-  const beamHtml = isStopped || isNoSignal ? "" : `<div class="bus-live-beam"></div>`;
+  const beamHtml =
+    isStopped || isNoSignal
+      ? ""
+      : `<div class="bus-chevron-trail"><span class="bus-chevron"></span><span class="bus-chevron"></span><span class="bus-chevron"></span><span class="bus-chevron"></span></div>`;
 
   const dir = String(direction ?? "").toLowerCase();
   const directionChip = dir.includes("north")
