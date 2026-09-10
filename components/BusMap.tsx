@@ -292,6 +292,41 @@ export default function BusMap() {
           Connecting to live bus data…
         </div>
       )}
+
+      {/* Legend explaining what each bus pill's border color and
+          direction chip mean. */}
+      <div className="absolute right-3 top-3 z-[400] w-36 rounded-xl border border-slate-200 bg-white/95 p-2.5 text-[11px] shadow-lg backdrop-blur sm:right-4 sm:top-4 sm:w-40">
+        <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+          Legend
+        </p>
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2">
+            <span className="h-3 w-3 shrink-0 rounded-full border-2 border-[#2563eb] bg-white" />
+            <span className="text-slate-600">Moving</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="h-3 w-3 shrink-0 rounded-full border-2 border-[#dc2626] bg-white" />
+            <span className="text-slate-600">Stopped</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="h-3 w-3 shrink-0 rounded-full border-2 border-dashed border-[#64748b] bg-slate-100" />
+            <span className="text-slate-600">No Signal</span>
+          </div>
+          <div className="my-1.5 border-t border-slate-100" />
+          <div className="flex items-center gap-2">
+            <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#2563eb] text-[8px] text-white">
+              ▲
+            </span>
+            <span className="text-slate-600">Northbound</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#f97316] text-[8px] text-white">
+              ▼
+            </span>
+            <span className="text-slate-600">Southbound</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
