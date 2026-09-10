@@ -29,14 +29,14 @@ function stopIcon(status: StopStatus, index: number) {
       className: "",
       html: `
         <div class="route-flag departed">
-          <svg width="16" height="22" viewBox="0 0 16 22" xmlns="http://www.w3.org/2000/svg">
-            <line x1="2" y1="21" x2="2" y2="2" stroke="#334155" stroke-width="1.6" stroke-linecap="round" />
-            <path class="route-flag-cloth" style="animation-delay:${delay};" d="M2.5 2.5 L14 6 L2.5 9.5 Z" fill="#16a34a" stroke="#15803d" stroke-width="0.5" />
+          <svg width="20" height="26" viewBox="0 0 20 26" xmlns="http://www.w3.org/2000/svg">
+            <line x1="3" y1="25" x2="3" y2="2" stroke="#334155" stroke-width="2" stroke-linecap="round" />
+            <path class="route-flag-cloth" style="animation-delay:${delay};" d="M3 3 L17 3 L12.5 8.5 L17 14 L3 14 Z" fill="#16a34a" stroke="#166534" stroke-width="0.8" stroke-linejoin="round" />
           </svg>
         </div>
       `,
-      iconSize: [16, 22],
-      iconAnchor: [2, 21],
+      iconSize: [20, 26],
+      iconAnchor: [3, 25],
     });
   }
   if (status === "ARRIVING") {
@@ -45,28 +45,28 @@ function stopIcon(status: StopStatus, index: number) {
       html: `
         <div class="route-flag arriving">
           <span class="route-stop-pulse"></span>
-          <svg width="18" height="24" viewBox="0 0 18 24" xmlns="http://www.w3.org/2000/svg">
-            <line x1="2" y1="23" x2="2" y2="2" stroke="#334155" stroke-width="1.8" stroke-linecap="round" />
-            <path class="route-flag-cloth" style="animation-delay:${delay};" d="M2.5 2.5 L16 6.5 L2.5 10.5 Z" fill="#f59e0b" stroke="#d97706" stroke-width="0.5" />
+          <svg width="22" height="28" viewBox="0 0 22 28" xmlns="http://www.w3.org/2000/svg">
+            <line x1="3" y1="27" x2="3" y2="2" stroke="#334155" stroke-width="2.2" stroke-linecap="round" />
+            <path class="route-flag-cloth" style="animation-delay:${delay};" d="M3 3 L19 3 L14 9 L19 15 L3 15 Z" fill="#f59e0b" stroke="#b45309" stroke-width="0.8" stroke-linejoin="round" />
           </svg>
         </div>
       `,
-      iconSize: [18, 24],
-      iconAnchor: [2, 23],
+      iconSize: [22, 28],
+      iconAnchor: [3, 27],
     });
   }
   return L.divIcon({
     className: "",
     html: `
       <div class="route-flag upcoming">
-        <svg width="14" height="20" viewBox="0 0 14 20" xmlns="http://www.w3.org/2000/svg">
-          <line x1="2" y1="19" x2="2" y2="3" stroke="#94a3b8" stroke-width="1.4" stroke-linecap="round" />
-          <path class="route-flag-cloth" style="animation-delay:${delay};" d="M2.5 3 L12 6 L2.5 9 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="0.5" />
+        <svg width="16" height="22" viewBox="0 0 16 22" xmlns="http://www.w3.org/2000/svg">
+          <line x1="3" y1="21" x2="3" y2="3" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round" />
+          <path class="route-flag-cloth" style="animation-delay:${delay};" d="M3 4 L13 4 L9.5 8.5 L13 13 L3 13 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="0.7" stroke-linejoin="round" />
         </svg>
       </div>
     `,
-    iconSize: [14, 20],
-    iconAnchor: [2, 19],
+    iconSize: [16, 22],
+    iconAnchor: [3, 21],
   });
 }
 
