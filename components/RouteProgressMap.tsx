@@ -13,6 +13,7 @@ type BusPosition = {
   lat: number | null;
   lng: number | null;
   label?: string;
+  direction?: string;
 };
 
 type RouteProgressMapProps = {
@@ -45,12 +46,24 @@ function stopIcon(status: StopStatus) {
   });
 }
 
-const busDotIcon = L.divIcon({
-  className: "",
-  html: `<div class="route-bus-dot">🚌</div>`,
-  iconSize: [28, 28],
-  iconAnchor: [14, 14],
-});
+// Same vehicle graphic used on the Live Tracking map, without the pill
+// label — just the icon itself, facing the direction of travel: upright
+// for Northbound, flipped for Southbound.
+function busIcon(direction?: string) {
+  const dir = String(direction ?? "").toLowerCase();
+  const rotateDeg = dir.includes("south") ? 180 : 0;
+
+  const html = `
+    <img src="/bus-icon.png" class="route-bus-vehicle" style="left:15px; top:29px; transform:translate(-50%,-50%) rotate(${rotateDeg}deg);" />
+  `;
+
+  return L.divIcon({
+    className: "",
+    html,
+    iconSize: [30, 58],
+    iconAnchor: [15, 29],
+  });
+}
 
 // Frames the entire Santa Cruz <-> Olongapo corridor once, using the
 // full road route plus every municipality stop. Fits only on mount (not
@@ -135,9 +148,13 @@ export default function RouteProgressMap({ stops, bus }: RouteProgressMapProps) 
         ))}
 
         {bus?.lat != null && bus?.lng != null && (
-          <Marker position={[bus.lat, bus.lng]} icon={busDotIcon} zIndexOffset={1000}>
+          <Marker
+            position={[bus.lat, bus.lng]}
+            icon={busIcon(bus.direction)}
+            zIndexOffset={1000}
+          >
             {bus.label && (
-              <Tooltip direction="top" offset={[0, -10]} opacity={1}>
+              <Tooltip direction="top" offset={[0, -20]} opacity={1}>
                 {bus.label}
               </Tooltip>
             )}

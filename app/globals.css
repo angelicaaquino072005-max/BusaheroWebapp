@@ -278,15 +278,10 @@ body {
   }
 }
 
-.route-bus-dot {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  background: #1e3a8a;
-  border: 2px solid white;
-  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.4);
-  font-size: 14px;
+.route-bus-vehicle {
+  position: absolute;
+  width: 30px !important;
+  height: 58px !important;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 8px rgba(15, 23, 42, 0.4));
 }
