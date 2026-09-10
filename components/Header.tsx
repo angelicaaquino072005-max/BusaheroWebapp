@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { titleForPath } from "@/lib/nav";
-import { IconMenu } from "@/components/Icons";
+import { IconMenu, IconHelpCircle } from "@/components/Icons";
 
 export default function Header({ onMenuClick }) {
   const pathname = usePathname();
@@ -21,6 +22,17 @@ export default function Header({ onMenuClick }) {
           {titleForPath(pathname)}
         </h1>
       </div>
+
+      <Link
+        href="/how-to-use"
+        aria-label="How to use BUSahero"
+        title="How to use BUSahero"
+        className={`shrink-0 rounded-full p-1.5 transition-colors hover:bg-white/10 ${
+          pathname === "/how-to-use" ? "bg-white/15" : ""
+        }`}
+      >
+        <IconHelpCircle size={22} />
+      </Link>
     </header>
   );
 }

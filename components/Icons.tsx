@@ -310,3 +310,11 @@ export const IconCompass = (p: IconProps) => (
     <path d="M15.5 8.5l-2 5-5 2 2-5 5-2z" />
   </Svg>
 );
+
+export const IconHelpCircle = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M9.5 9a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 2-2.4 3.7" />
+    <path d="M12 17h.01" />
+  </Svg>
+);
