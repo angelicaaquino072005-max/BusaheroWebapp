@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import MobileTabBar from "@/components/MobileTabBar";
 import Footer from "@/components/Footer";
 import OnboardingTour from "@/components/OnboardingTour";
+import TermsGate from "@/components/TermsGate";
 
 export default function AppShell({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -27,6 +28,7 @@ export default function AppShell({ children }) {
       </div>
 
       <OnboardingTour />
+      <TermsGate />
     </div>
   );
 }
