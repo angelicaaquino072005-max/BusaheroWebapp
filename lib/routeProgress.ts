@@ -1,237 +1,127 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Polyline, Tooltip, useMap } from "react-leaflet";
-import L from "leaflet";
 import type { LatLngTuple } from "leaflet";
 import { olongapoToSantaCruzRoute } from "@/lib/routes";
-import type { RouteStop, StopStatus } from "@/lib/routePlanner";
-const routePositions = olongapoToSantaCruzRoute as LatLngTuple[];
-const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
+import { municipalities, haversineKm } from "@/lib/data";
 
-type BusPosition = {
-  lat: number | null;
-  lng: number | null;
-  label?: string;
-  direction?: string;
+const route = olongapoToSantaCruzRoute as LatLngTuple[];
+
+// How close (in km) a bus needs to be to a municipality's marker before
+// we consider it "arriving" there, rather than just "departed"/"upcoming".
+const ARRIVING_THRESHOLD_KM = 3;
+
+// Finds the index of the closest point on the static road route to a
+// given lat/lng. O(n) over ~1,300 points — cheap enough to run on every
+// Firebase update for a handful of buses.
+export function findNearestRouteIndex(lat: number, lng: number): number {
+  let bestIndex = 0;
+  let bestDistance = Infinity;
+  for (let i = 0; i < route.length; i++) {
+    const [rLat, rLng] = route[i];
+    const d = haversineKm(lat, lng, rLat, rLng);
+    if (d < bestDistance) {
+      bestDistance = d;
+      bestIndex = i;
+    }
+  }
+  return bestIndex;
+}
+
+// Precompute each municipality's position along the route once, then
+// sort Olongapo (index 0) -> Santa Cruz (last index). This gives us a
+// single "corridor order" we can compare any bus's position against.
+const orderedMunicipalities = municipalities
+  .map((m) => ({ ...m, routeIndex: findNearestRouteIndex(m.lat, m.lng) }))
+  .sort((a, b) => a.routeIndex - b.routeIndex);
+
+export type StopStatus = "DEPARTED" | "ARRIVING" | "UPCOMING";
+
+export type RouteStop = {
+  id: string;
+  name: string;
+  status: StopStatus;
 };
 
-type RouteProgressMapProps = {
+export type BusRouteProgress = {
+  routeIndex: number;
+  percent: number;
+  origin: string;
+  destination: string;
+  directionLabel: "Northbound" | "Southbound";
+  currentMunicipality: string | null;
+  nextMunicipality: string | null;
   stops: RouteStop[];
-  bus: BusPosition | null;
 };
 
-function stopIcon(status: StopStatus, index: number) {
-  const delay = `${(index % 5) * 0.12}s`;
+// Projects a bus's live lat/lng onto the road route and derives
+// municipality-level progress. `direction` should be "north" or "south"
+// (matching the Firebase /buses/{direction}/{busId} grouping).
+export function getBusRouteProgress(
+  lat: number,
+  lng: number,
+  direction: string | undefined
+): BusRouteProgress {
+  const isSouth = (direction ?? "").toLowerCase() === "south";
+  const busIndex = findNearestRouteIndex(lat, lng);
+  const percent = Math.round((busIndex / (route.length - 1)) * 100);
 
-  if (status === "DEPARTED") {
-    return L.divIcon({
-      className: "",
-      html: `
-        <div class="route-flag departed">
-          <svg width="20" height="26" viewBox="0 0 20 26" xmlns="http://www.w3.org/2000/svg">
-            <line x1="3" y1="25" x2="3" y2="2" stroke="#334155" stroke-width="2" stroke-linecap="round" />
-            <path class="route-flag-cloth" style="animation-delay:${delay};" d="M3 3 L17 3 L12.5 8.5 L17 14 L3 14 Z" fill="#16a34a" stroke="#166534" stroke-width="0.8" stroke-linejoin="round" />
-          </svg>
-        </div>
-      `,
-      iconSize: [20, 26],
-      iconAnchor: [3, 25],
-    });
-  }
-  if (status === "ARRIVING") {
-    return L.divIcon({
-      className: "",
-      html: `
-        <div class="route-flag arriving">
-          <span class="route-stop-pulse"></span>
-          <svg width="22" height="28" viewBox="0 0 22 28" xmlns="http://www.w3.org/2000/svg">
-            <line x1="3" y1="27" x2="3" y2="2" stroke="#334155" stroke-width="2.2" stroke-linecap="round" />
-            <path class="route-flag-cloth" style="animation-delay:${delay};" d="M3 3 L19 3 L14 9 L19 15 L3 15 Z" fill="#f59e0b" stroke="#b45309" stroke-width="0.8" stroke-linejoin="round" />
-          </svg>
-        </div>
-      `,
-      iconSize: [22, 28],
-      iconAnchor: [3, 27],
-    });
-  }
-  return L.divIcon({
-    className: "",
-    html: `
-      <div class="route-flag upcoming">
-        <svg width="16" height="22" viewBox="0 0 16 22" xmlns="http://www.w3.org/2000/svg">
-          <line x1="3" y1="21" x2="3" y2="3" stroke="#94a3b8" stroke-width="1.6" stroke-linecap="round" />
-          <path class="route-flag-cloth" style="animation-delay:${delay};" d="M3 4 L13 4 L9.5 8.5 L13 13 L3 13 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="0.7" stroke-linejoin="round" />
-        </svg>
-      </div>
-    `,
-    iconSize: [16, 22],
-    iconAnchor: [3, 21],
+  const origin = isSouth ? "Santa Cruz" : "Olongapo City";
+  const destination = isSouth ? "Olongapo City" : "Santa Cruz";
+
+  // Walk the corridor in travel order (reversed for southbound buses)
+  // and classify each municipality relative to the bus's position.
+  const travelOrder = isSouth
+    ? [...orderedMunicipalities].reverse()
+    : orderedMunicipalities;
+
+  let currentMunicipality: string | null = null;
+  let nextMunicipality: string | null = null;
+
+  const stops: RouteStop[] = travelOrder.map((m) => {
+    const distanceToBusKm = haversineKm(lat, lng, m.lat, m.lng);
+    const passed = isSouth ? m.routeIndex > busIndex : m.routeIndex < busIndex;
+    const isNear = distanceToBusKm <= ARRIVING_THRESHOLD_KM;
+
+    let status: StopStatus;
+    if (isNear) {
+      status = "ARRIVING";
+      currentMunicipality = m.name;
+    } else if (passed) {
+      status = "DEPARTED";
+    } else {
+      status = "UPCOMING";
+      if (nextMunicipality === null) nextMunicipality = m.name;
+    }
+
+    return { id: m.id, name: m.name, status };
   });
-}
 
-// Same vehicle graphic used on the Live Tracking map, without the pill
-// label — just the icon itself, facing the direction of travel: upright
-// for Northbound, flipped for Southbound.
-function busIcon(direction?: string) {
-  const dir = String(direction ?? "").toLowerCase();
-  const rotateDeg = dir.includes("south") ? 180 : 0;
+  // If no stop was close enough to count as "arriving", fall back to the
+  // nearest municipality overall so the UI still has something to show.
+  if (!currentMunicipality) {
+    let nearest = travelOrder[0];
+    let nearestDist = Infinity;
+    travelOrder.forEach((m) => {
+      const d = haversineKm(lat, lng, m.lat, m.lng);
+      if (d < nearestDist) {
+        nearestDist = d;
+        nearest = m;
+      }
+    });
+    currentMunicipality = nearest?.name ?? null;
+  }
 
-  const html = `
-    <img src="/bus-icon.png" class="route-bus-vehicle" style="left:15px; top:29px; transform:translate(-50%,-50%) rotate(${rotateDeg}deg);" />
-  `;
+  if (!nextMunicipality) {
+    const upcoming = stops.find((s) => s.status === "UPCOMING");
+    nextMunicipality = upcoming?.name ?? null;
+  }
 
-  return L.divIcon({
-    className: "",
-    html,
-    iconSize: [30, 58],
-    iconAnchor: [15, 29],
-  });
-}
-
-// Frames the entire Santa Cruz <-> Olongapo corridor once, using the
-// full road route plus every municipality stop. Fits only on mount (not
-// on every bus update) so the map always shows the whole corridor as a
-// stable reference instead of snapping to a tight zoom around wherever
-// the bus currently is.
-function FitToRoute({ stops }: { stops: RouteStop[] }) {
-  const map = useMap();
-
-  useEffect(() => {
-    const points: LatLngTuple[] = [
-      ...routePositions,
-      ...stops.map((s) => [s.lat, s.lng] as LatLngTuple),
-    ];
-    if (points.length === 0) return;
-    const bounds = L.latLngBounds(points);
-    map.fitBounds(bounds, { padding: [16, 16] });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return null;
-}
-
-// Small +/- buttons so the map can be zoomed in and out without relying
-// on scroll-wheel or pinch gestures, which stay disabled here so the map
-// doesn't hijack page scrolling.
-function ZoomControls() {
-  const map = useMap();
-  return (
-    <div className="absolute bottom-3 right-3 z-[400] flex flex-col gap-1.5">
-      <button
-        type="button"
-        onClick={() => map.zoomIn()}
-        aria-label="Zoom in"
-        className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-base font-semibold text-slate-600 shadow-md hover:bg-slate-50"
-      >
-        +
-      </button>
-      <button
-        type="button"
-        onClick={() => map.zoomOut()}
-        aria-label="Zoom out"
-        className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-base font-semibold text-slate-600 shadow-md hover:bg-slate-50"
-      >
-        −
-      </button>
-    </div>
-  );
-}
-
-// A small, self-contained map scoped to a single bus. Every bus in the
-// Route Planner gets its own instance of this component, so each one
-// shows only that bus's own progress along the corridor — municipalities
-// it has already passed are marked, the one it's near is highlighted, and
-// the rest stay plain until it reaches them.
-export default function RouteProgressMap({ stops, bus }: RouteProgressMapProps) {
-  const [legendOpen, setLegendOpen] = useState(false);
-
-  return (
-    <div className="relative h-[420px] w-full overflow-hidden rounded-xl border border-slate-100 sm:h-[560px]">
-      <MapContainer
-        center={[15.2, 120.0]}
-        zoom={9}
-        scrollWheelZoom={false}
-        zoomControl={false}
-        className="h-full w-full"
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.maptiler.com/copyright/" target="_blank" rel="noreferrer">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap contributors</a>'
-          url={`https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`}
-        />
-
-        <Polyline
-          positions={routePositions}
-          pathOptions={{ color: "#1e3a8a", weight: 4, opacity: 0.85 }}
-        />
-
-        {stops.map((stop, i) => (
-          <Marker key={stop.id} position={[stop.lat, stop.lng]} icon={stopIcon(stop.status, i)}>
-            <Tooltip direction="top" offset={[0, -6]} opacity={1}>
-              {stop.name}
-            </Tooltip>
-          </Marker>
-        ))}
-
-        {bus?.lat != null && bus?.lng != null && (
-          <Marker
-            position={[bus.lat, bus.lng]}
-            icon={busIcon(bus.direction)}
-            zIndexOffset={1000}
-          >
-            {bus.label && (
-              <Tooltip direction="top" offset={[0, -20]} opacity={1}>
-                {bus.label}
-              </Tooltip>
-            )}
-          </Marker>
-        )}
-
-        <FitToRoute stops={stops} />
-        <ZoomControls />
-      </MapContainer>
-
-      {/* Collapsed by default so it doesn't cover most of a small
-          screen — tap to open the list of towns, tap again to close. */}
-      <div className="absolute right-3 top-3 z-[400]">
-        <button
-          type="button"
-          onClick={() => setLegendOpen((v) => !v)}
-          className="flex items-center gap-1 rounded-full border border-slate-200 bg-white/95 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500 shadow-lg backdrop-blur"
-        >
-          Towns
-          <span className="text-[9px]">{legendOpen ? "▲" : "▼"}</span>
-        </button>
-
-        {legendOpen && (
-          <div className="mt-1.5 max-h-52 w-32 overflow-y-auto rounded-xl border border-slate-200 bg-white/95 p-1.5 shadow-lg backdrop-blur">
-            <div className="space-y-0.5">
-              {stops.map((stop) => (
-                <div key={stop.id} className="flex items-center gap-1.5 rounded-lg px-1 py-0.5">
-                  <span
-                    className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full text-[8px] font-bold text-white ${
-                      stop.status === "DEPARTED"
-                        ? "bg-emerald-500"
-                        : stop.status === "ARRIVING"
-                        ? "bg-amber-500"
-                        : "bg-slate-300"
-                    }`}
-                  >
-                    {stop.status === "DEPARTED" ? "✓" : ""}
-                  </span>
-                  <span
-                    className={`truncate text-[11px] ${
-                      stop.status === "UPCOMING" ? "text-slate-400" : "font-medium text-slate-700"
-                    }`}
-                  >
-                    {stop.name}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+  return {
+    routeIndex: busIndex,
+    percent: Math.min(100, Math.max(0, percent)),
+    origin,
+    destination,
+    directionLabel: isSouth ? "Southbound" : "Northbound",
+    currentMunicipality,
+    nextMunicipality,
+    stops,
+  };
 }
