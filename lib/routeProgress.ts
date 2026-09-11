@@ -25,6 +25,29 @@ export function findNearestRouteIndex(lat: number, lng: number): number {
   return bestIndex;
 }
 
+// How far (km) a bus's actual GPS position can drift from the known
+// road corridor before it's no longer just "off the road a little" —
+// e.g. parked a street off the highway — but more likely chartered for
+// a special trip somewhere outside Olongapo <-> Santa Cruz entirely.
+// Bigger than ARRIVING_THRESHOLD_KM on purpose, so a bus a few streets
+// into a town's inner roads doesn't get flagged by mistake.
+export const SPECIAL_TRIP_THRESHOLD_KM = 5;
+
+// Straight-line distance from a raw GPS point to its nearest point on
+// the known road corridor.
+export function distanceFromCorridorKm(lat: number, lng: number): number {
+  const idx = findNearestRouteIndex(lat, lng);
+  const [routeLat, routeLng] = route[idx];
+  return haversineKm(lat, lng, routeLat, routeLng);
+}
+
+// True once a bus has been taken far enough off its usual corridor that
+// its position no longer means anything relative to the Olongapo <->
+// Santa Cruz stops — most likely chartered for a special trip.
+export function isOnSpecialTrip(lat: number, lng: number): boolean {
+  return distanceFromCorridorKm(lat, lng) > SPECIAL_TRIP_THRESHOLD_KM;
+}
+
 // Precompute each municipality's position along the route once, then
 // sort Olongapo (index 0) -> Santa Cruz (last index). This gives us a
 // single "corridor order" we can compare any bus's position against.

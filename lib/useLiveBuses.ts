@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ref, onValue } from "firebase/database";
 import { db } from "@/lib/firebase";
+import { isOnSpecialTrip } from "@/lib/routeProgress";
 
 // Formats a raw bus id like "bus1" or "Bus3" into a clean "Bus 1" style label.
 export function formatBusLabel(id: string): string {
@@ -67,6 +68,11 @@ export type LiveBusBase = {
   speedKph: number | null;
   status?: string;
   direction?: string;
+  // True once the bus's GPS position has drifted far enough from the
+  // known Olongapo <-> Santa Cruz corridor that it's most likely
+  // chartered for a special trip elsewhere, rather than just parked
+  // slightly off the highway.
+  isOnSpecialTrip?: boolean;
   // Client-side timestamp (ms) of when we last saw this bus's data change.
   lastUpdateAt: number;
   [key: string]: any;
@@ -150,6 +156,7 @@ export function useLiveBuses() {
             lng,
             speedKph,
             lastUpdateAt: seenAt,
+            isOnSpecialTrip: lat != null && lng != null ? isOnSpecialTrip(lat, lng) : false,
           };
         });
 

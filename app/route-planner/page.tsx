@@ -80,14 +80,22 @@ export default function RoutePlannerPage() {
             <p className="text-sm font-semibold text-slate-800">
               {safeIndex + 1} of {routes.length} • {route.label}
             </p>
-            <div className="mt-2 flex items-center justify-center gap-2 rounded-full bg-slate-50 px-4 py-1.5 text-sm font-medium text-slate-700">
-              {route.origin}
-              <span className="text-brand">→</span>
-              {route.destination}
-            </div>
-            <span className="mt-2 inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-brand">
-              {route.direction}
-            </span>
+            {route.isSpecialTrip ? (
+              <span className="mt-2 inline-block rounded-full bg-purple-50 px-4 py-1.5 text-sm font-semibold text-purple-700">
+                🎫 On Special Trip
+              </span>
+            ) : (
+              <>
+                <div className="mt-2 flex items-center justify-center gap-2 rounded-full bg-slate-50 px-4 py-1.5 text-sm font-medium text-slate-700">
+                  {route.origin}
+                  <span className="text-brand">→</span>
+                  {route.destination}
+                </div>
+                <span className="mt-2 inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-brand">
+                  {route.direction}
+                </span>
+              </>
+            )}
           </div>
 
           <button
@@ -104,10 +112,12 @@ export default function RoutePlannerPage() {
           <RouteProgressMap
             key={route.busId}
             stops={route.stops}
+            isSpecialTrip={route.isSpecialTrip}
             bus={{
               lat: busById[route.busId]?.lat ?? null,
               lng: busById[route.busId]?.lng ?? null,
               label: route.label,
+              direction: route.isSpecialTrip ? undefined : route.direction,
             }}
           />
         </div>

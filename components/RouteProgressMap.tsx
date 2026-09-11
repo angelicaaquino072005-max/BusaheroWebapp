@@ -19,6 +19,7 @@ type BusPosition = {
 type RouteProgressMapProps = {
   stops: RouteStop[];
   bus: BusPosition | null;
+  isSpecialTrip?: boolean;
 };
 
 function stopIcon(status: StopStatus, index: number) {
@@ -111,6 +112,24 @@ function FitToRoute({ stops }: { stops: RouteStop[] }) {
   return null;
 }
 
+// Frames just the bus's own live position, used instead of FitToRoute
+// when a bus is on a special trip — its location has nothing to do
+// with the Olongapo <-> Santa Cruz corridor, so fitting to the corridor
+// bounds would either exclude the bus or absurdly zoom out to include
+// both. Runs once on mount, matching FitToRoute's "stable view" approach
+// rather than re-centering on every GPS update.
+function FitToBus({ bus }: { bus: BusPosition | null }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (bus?.lat == null || bus?.lng == null) return;
+    map.setView([bus.lat, bus.lng], 12);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return null;
+}
+
 // Small +/- buttons so the map can be zoomed in and out without relying
 // on scroll-wheel or pinch gestures, which stay disabled here so the map
 // doesn't hijack page scrolling.
@@ -143,7 +162,7 @@ function ZoomControls() {
 // shows only that bus's own progress along the corridor — municipalities
 // it has already passed are marked, the one it's near is highlighted, and
 // the rest stay plain until it reaches them.
-export default function RouteProgressMap({ stops, bus }: RouteProgressMapProps) {
+export default function RouteProgressMap({ stops, bus, isSpecialTrip }: RouteProgressMapProps) {
   const [legendOpen, setLegendOpen] = useState(false);
 
   return (
@@ -165,13 +184,16 @@ export default function RouteProgressMap({ stops, bus }: RouteProgressMapProps) 
           pathOptions={{ color: "#1e3a8a", weight: 4, opacity: 0.85 }}
         />
 
-        {stops.map((stop, i) => (
-          <Marker key={stop.id} position={[stop.lat, stop.lng]} icon={stopIcon(stop.status, i)}>
-            <Tooltip direction="top" offset={[0, -6]} opacity={1}>
-              {stop.name}
-            </Tooltip>
-          </Marker>
-        ))}
+        {/* Municipality flags only make sense relative to the usual
+            corridor — skipped entirely for a special trip. */}
+        {!isSpecialTrip &&
+          stops.map((stop, i) => (
+            <Marker key={stop.id} position={[stop.lat, stop.lng]} icon={stopIcon(stop.status, i)}>
+              <Tooltip direction="top" offset={[0, -6]} opacity={1}>
+                {stop.name}
+              </Tooltip>
+            </Marker>
+          ))}
 
         {bus?.lat != null && bus?.lng != null && (
           <Marker
@@ -187,51 +209,61 @@ export default function RouteProgressMap({ stops, bus }: RouteProgressMapProps) 
           </Marker>
         )}
 
-        <FitToRoute stops={stops} />
+        {isSpecialTrip ? <FitToBus bus={bus} /> : <FitToRoute stops={stops} />}
         <ZoomControls />
       </MapContainer>
 
       {/* Collapsed by default so it doesn't cover most of a small
-          screen — tap to open the list of towns, tap again to close. */}
-      <div className="absolute right-3 top-3 z-[400]">
-        <button
-          type="button"
-          onClick={() => setLegendOpen((v) => !v)}
-          className="flex items-center gap-1 rounded-full border border-slate-200 bg-white/95 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500 shadow-lg backdrop-blur"
-        >
-          Towns
-          <span className="text-[9px]">{legendOpen ? "▲" : "▼"}</span>
-        </button>
+          screen — tap to open the list of towns, tap again to close.
+          Not shown during a special trip since there's no corridor
+          progress to list. */}
+      {!isSpecialTrip && (
+        <div className="absolute right-3 top-3 z-[400]">
+          <button
+            type="button"
+            onClick={() => setLegendOpen((v) => !v)}
+            className="flex items-center gap-1 rounded-full border border-slate-200 bg-white/95 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500 shadow-lg backdrop-blur"
+          >
+            Towns
+            <span className="text-[9px]">{legendOpen ? "▲" : "▼"}</span>
+          </button>
 
-        {legendOpen && (
-          <div className="mt-1.5 max-h-52 w-32 overflow-y-auto rounded-xl border border-slate-200 bg-white/95 p-1.5 shadow-lg backdrop-blur">
-            <div className="space-y-0.5">
-              {stops.map((stop) => (
-                <div key={stop.id} className="flex items-center gap-1.5 rounded-lg px-1 py-0.5">
-                  <span
-                    className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full text-[8px] font-bold text-white ${
-                      stop.status === "DEPARTED"
-                        ? "bg-emerald-500"
-                        : stop.status === "ARRIVING"
-                        ? "bg-amber-500"
-                        : "bg-slate-300"
-                    }`}
-                  >
-                    {stop.status === "DEPARTED" ? "✓" : ""}
-                  </span>
-                  <span
-                    className={`truncate text-[11px] ${
-                      stop.status === "UPCOMING" ? "text-slate-400" : "font-medium text-slate-700"
-                    }`}
-                  >
-                    {stop.name}
-                  </span>
-                </div>
-              ))}
+          {legendOpen && (
+            <div className="mt-1.5 max-h-52 w-32 overflow-y-auto rounded-xl border border-slate-200 bg-white/95 p-1.5 shadow-lg backdrop-blur">
+              <div className="space-y-0.5">
+                {stops.map((stop) => (
+                  <div key={stop.id} className="flex items-center gap-1.5 rounded-lg px-1 py-0.5">
+                    <span
+                      className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full text-[8px] font-bold text-white ${
+                        stop.status === "DEPARTED"
+                          ? "bg-emerald-500"
+                          : stop.status === "ARRIVING"
+                          ? "bg-amber-500"
+                          : "bg-slate-300"
+                      }`}
+                    >
+                      {stop.status === "DEPARTED" ? "✓" : ""}
+                    </span>
+                    <span
+                      className={`truncate text-[11px] ${
+                        stop.status === "UPCOMING" ? "text-slate-400" : "font-medium text-slate-700"
+                      }`}
+                    >
+                      {stop.name}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
+
+      {isSpecialTrip && (
+        <div className="absolute left-3 top-3 z-[400] rounded-full border border-purple-200 bg-purple-50/95 px-3 py-1.5 text-[11px] font-semibold text-purple-700 shadow-lg backdrop-blur">
+          🎫 On Special Trip
+        </div>
+      )}
     </div>
   );
 }

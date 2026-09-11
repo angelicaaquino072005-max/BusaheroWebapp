@@ -1,4 +1,5 @@
 import { getMunicipality, haversineKm } from "@/lib/data";
+import { isOnSpecialTrip } from "@/lib/routeProgress";
 
 export const corridorOrder = [
   "olongapo",
@@ -38,6 +39,11 @@ export type BusRouteProgress = {
   currentMunicipality: string;
   nextMunicipality: string | null;
   stops: RouteStop[];
+  // True once the bus is far enough off the Olongapo <-> Santa Cruz
+  // corridor that it's most likely chartered for a special trip
+  // elsewhere. When true, the corridor fields above are just
+  // placeholders — the Route Planner UI shows a dedicated state instead.
+  isSpecialTrip: boolean;
 };
 
 function findNearestStopIndex(lat: number, lng: number): number {
@@ -148,6 +154,29 @@ export function buildRouteProgress(
   if (typeof bus.lat !== "number" || typeof bus.lng !== "number") return null;
   if (corridorStops.length === 0) return null;
 
+  // A bus chartered for a special trip can be anywhere — projecting its
+  // position onto the corridor would just produce a meaningless "nearest
+  // stop" guess, and would corrupt the movement history resolveDirection
+  // relies on. So it short-circuits here instead, and deliberately
+  // passes the previous index straight through unchanged, so direction
+  // tracking picks up cleanly once the bus returns to its usual route.
+  if (isOnSpecialTrip(bus.lat, bus.lng)) {
+    return {
+      progress: {
+        busId: bus.id,
+        label: bus.label,
+        direction: "Unknown",
+        origin: "—",
+        destination: "—",
+        currentMunicipality: "Outside the usual corridor",
+        nextMunicipality: null,
+        stops: [],
+        isSpecialTrip: true,
+      },
+      nearestIndex: previousIndex ?? 0,
+    };
+  }
+
   const nearestIndex = findNearestStopIndex(bus.lat, bus.lng);
   const direction = resolveDirection(bus, nearestIndex, previousIndex);
   const southbound = direction === "Southbound";
@@ -177,6 +206,7 @@ export function buildRouteProgress(
       currentMunicipality: corridorStops[nearestIndex].name,
       nextMunicipality: nextStop ? nextStop.name : null,
       stops,
+      isSpecialTrip: false,
     },
     nearestIndex,
   };

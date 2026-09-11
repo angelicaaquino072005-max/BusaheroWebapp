@@ -211,6 +211,12 @@ body {
   background: #f1f5f9;
 }
 
+.bus-marker-pill.special-trip {
+  border-color: #7c3aed;
+  background: #f5f3ff;
+  color: #5b21b6;
+}
+
 .bus-marker-pill::after {
   content: "";
   position: absolute;
@@ -228,6 +234,10 @@ body {
 
 .bus-marker-pill.no-signal::after {
   border-top-color: #64748b;
+}
+
+.bus-marker-pill.special-trip::after {
+  border-top-color: #7c3aed;
 }
 
 /* direction chip: sits inline inside the pill, to the left of the

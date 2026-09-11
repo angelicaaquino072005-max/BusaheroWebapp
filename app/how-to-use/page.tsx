@@ -17,7 +17,7 @@ const features = [
     title: "Route",
     summary: "Check which stops a specific bus has already passed and which ones are still ahead.",
     steps: [
-      "Open the Route Planner page.",
+      "Open the Route page.",
       "Use the left/right arrows to switch between different active buses.",
       "The top of the card shows the bus's origin, destination, and direction of travel.",
       "Tap any stop in the list to see more detail about its status — Departed, Arriving, or Upcoming.",

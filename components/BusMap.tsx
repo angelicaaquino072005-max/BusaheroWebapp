@@ -33,9 +33,10 @@ function createBusIcon(
   isStopped: boolean,
   bearingDeg: number,
   isNoSignal?: boolean,
-  direction?: string
+  direction?: string,
+  isSpecialTrip?: boolean
 ) {
-  const pillClass = isNoSignal ? "no-signal" : isStopped ? "stopped" : "";
+  const pillClass = isSpecialTrip ? "special-trip" : isNoSignal ? "no-signal" : isStopped ? "stopped" : "";
   const rotatorLeft = ANCHOR_X - PIVOT_X;
   const rotatorTop = ANCHOR_Y - PIVOT_Y;
 
@@ -44,8 +45,13 @@ function createBusIcon(
       ? ""
       : `<div class="bus-chevron-trail"><span class="bus-chevron"></span><span class="bus-chevron"></span><span class="bus-chevron"></span><span class="bus-chevron"></span></div>`;
 
+  // The north/south direction chip reflects corridor grouping, which
+  // doesn't mean anything once a bus has been chartered off its usual
+  // route — so it's hidden rather than showing a stale/misleading arrow.
   const dir = String(direction ?? "").toLowerCase();
-  const directionChip = dir.includes("north")
+  const directionChip = isSpecialTrip
+    ? ""
+    : dir.includes("north")
     ? `<span class="bus-direction-chip north">▲</span>`
     : dir.includes("south")
     ? `<span class="bus-direction-chip south">▼</span>`
@@ -210,7 +216,10 @@ export default function BusMap() {
           .map((bus) => {
             const isNoSignal = (bus.lastUpdateMinutesAgo ?? 0) >= 2;
             const isStopped = bus.speedKph === 0 || String(bus.status ?? "").toLowerCase() === "stopped";
-            const label = isNoSignal
+            const isSpecialTrip = !!bus.isOnSpecialTrip;
+            const label = isSpecialTrip
+              ? `${bus.label} · On Special Trip`
+              : isNoSignal
               ? `${bus.label} · No Signal`
               : isStopped
               ? `${bus.label} · Stopped`
@@ -248,7 +257,7 @@ export default function BusMap() {
               <Marker
                 key={bus.id}
                 position={[bus.lat, bus.lng]}
-                icon={createBusIcon(label, isStopped, bearing, isNoSignal, bus.direction)}
+                icon={createBusIcon(label, isStopped, bearing, isNoSignal, bus.direction, isSpecialTrip)}
                 eventHandlers={{
                   click: () => setSelectedBusId(bus.id),
                 }}
@@ -311,6 +320,10 @@ export default function BusMap() {
           <div className="flex items-center gap-2">
             <span className="h-3 w-3 shrink-0 rounded-full border-2 border-dashed border-[#64748b] bg-slate-100" />
             <span className="text-slate-600">No Signal</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="h-3 w-3 shrink-0 rounded-full border-2 border-[#7c3aed] bg-white" />
+            <span className="text-slate-600">On Special Trip</span>
           </div>
           <div className="my-1.5 border-t border-slate-100" />
           <div className="flex items-center gap-2">
