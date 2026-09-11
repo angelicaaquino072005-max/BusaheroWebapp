@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useLiveBuses, isBusOnline } from "@/lib/useLiveBuses";
-import { buildRouteProgress } from "@/lib/routePlanner";
+import { buildRouteProgress, buildInactiveEntry } from "@/lib/routePlanner";
 import { IconChevronLeft, IconChevronRight } from "@/components/Icons";
 
 // Each bus renders its own map instance, so this is dynamically imported
@@ -27,25 +27,25 @@ export default function RoutePlannerPage() {
   // a manually-set Firebase field.
   const lastIndexRef = useRef<Record<string, number>>({});
 
-  // Only buses whose tracker is genuinely online right now count as
-  // "active" — the same definition the Live Tracking map uses. A bus
-  // that stopped pushing GPS (trip ended, tracker closed, offline) is
-  // excluded here, which is what makes its route card disappear from
-  // the Route Planner automatically without any extra bookkeeping.
-  const activeBuses = buses.filter(isBusOnline);
-
-  const routes = activeBuses
-    .map((bus) => {
+  // Every registered bus always gets a card — the list itself never
+  // shrinks just because a bus has no active trip right now. Only
+  // buses whose tracker is genuinely online get their live route
+  // computed; everyone else gets the "no active trip" placeholder so a
+  // stale/outdated position never gets displayed as if it were current.
+  const routes = buses.map((bus) => {
+    if (isBusOnline(bus)) {
       const result = buildRouteProgress(bus, lastIndexRef.current[bus.id]);
-      if (!result) return null;
-      lastIndexRef.current[bus.id] = result.nearestIndex;
-      return result.progress;
-    })
-    .filter(Boolean);
+      if (result) {
+        lastIndexRef.current[bus.id] = result.nearestIndex;
+        return result.progress;
+      }
+    }
+    return buildInactiveEntry(bus);
+  });
 
   // Looked up per render so each bus's card can pass its own live
   // lat/lng to its own map instance below.
-  const busById = Object.fromEntries(activeBuses.map((bus) => [bus.id, bus]));
+  const busById = Object.fromEntries(buses.map((bus) => [bus.id, bus]));
 
   if (loading) {
     return (
@@ -58,7 +58,7 @@ export default function RoutePlannerPage() {
   if (routes.length === 0) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-10 text-center text-sm text-slate-400 sm:px-6">
-        No active bus trips available.
+        No buses are currently registered.
       </div>
     );
   }
@@ -87,7 +87,11 @@ export default function RoutePlannerPage() {
             <p className="text-sm font-semibold text-slate-800">
               {safeIndex + 1} of {routes.length} • {route.label}
             </p>
-            {route.isSpecialTrip ? (
+            {!route.hasActiveTrip ? (
+              <span className="mt-2 inline-block rounded-full bg-slate-100 px-4 py-1.5 text-sm font-semibold text-slate-500">
+                No active bus trips available.
+              </span>
+            ) : route.isSpecialTrip ? (
               <span className="mt-2 inline-block rounded-full bg-purple-50 px-4 py-1.5 text-sm font-semibold text-purple-700">
                 🎫 On Special Trip
               </span>
@@ -115,19 +119,25 @@ export default function RoutePlannerPage() {
           </button>
         </div>
 
-        <div className="mt-5">
-          <RouteProgressMap
-            key={route.busId}
-            stops={route.stops}
-            isSpecialTrip={route.isSpecialTrip}
-            bus={{
-              lat: busById[route.busId]?.lat ?? null,
-              lng: busById[route.busId]?.lng ?? null,
-              label: route.label,
-              direction: route.isSpecialTrip ? undefined : route.direction,
-            }}
-          />
-        </div>
+        {route.hasActiveTrip ? (
+          <div className="mt-5">
+            <RouteProgressMap
+              key={route.busId}
+              stops={route.stops}
+              isSpecialTrip={route.isSpecialTrip}
+              bus={{
+                lat: busById[route.busId]?.lat ?? null,
+                lng: busById[route.busId]?.lng ?? null,
+                label: route.label,
+                direction: route.isSpecialTrip ? undefined : route.direction,
+              }}
+            />
+          </div>
+        ) : (
+          <div className="mt-5 flex h-40 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 text-center text-sm text-slate-400 sm:h-56">
+            No active bus trips available.
+          </div>
+        )}
       </div>
     </div>
   );
