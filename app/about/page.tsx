@@ -63,7 +63,7 @@ export default function AboutPage() {
           <p className="text-sm leading-relaxed text-slate-600">
             BUSahero is a web-based real-time bus tracking and arrival estimation
             application developed to help commuters monitor bus locations,
-            estimate arrival times, check seat availability, and calculate fares for trips
+            estimate arrival times, and calculate fares for trips
             between Olongapo City and Zambales.
           </p>
         </div>

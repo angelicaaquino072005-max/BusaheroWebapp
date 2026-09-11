@@ -14,7 +14,7 @@ const features = [
   },
   {
     icon: IconRoute,
-    title: "Route Planner",
+    title: "Route",
     summary: "Check which stops a specific bus has already passed and which ones are still ahead.",
     steps: [
       "Open the Route Planner page.",
