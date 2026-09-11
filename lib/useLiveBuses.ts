@@ -120,7 +120,14 @@ export function useLiveBuses() {
             flatEntries.push([groupKey, groupValue]);
           } else if (groupValue && typeof groupValue === "object") {
             Object.entries(groupValue).forEach(([busId, busValue]: [string, any]) => {
-              flatEntries.push([busId, { direction: groupKey, ...busValue }]);
+              // The bus's own Firebase record can carry a stray/stale
+              // "direction" field from earlier hardware setup — that
+              // must NOT win over which folder (north/south) it's
+              // actually grouped under right now, or the direction
+              // chip gets stuck showing whatever was first configured
+              // instead of following the bus. Group key goes last so
+              // it always overrides.
+              flatEntries.push([busId, { ...busValue, direction: groupKey }]);
             });
           }
         });
