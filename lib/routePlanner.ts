@@ -44,6 +44,11 @@ export type BusRouteProgress = {
   // elsewhere. When true, the corridor fields above are just
   // placeholders — the Route Planner UI shows a dedicated state instead.
   isSpecialTrip: boolean;
+  // False means this bus is registered/known but has nothing trackable
+  // right now (tracker closed, no trip in progress). All the fields
+  // above are just placeholders in that case — the Route Planner shows
+  // a "no active trip" message for this bus instead of any route data.
+  hasActiveTrip: boolean;
 };
 
 function findNearestStopIndex(lat: number, lng: number): number {
@@ -172,6 +177,7 @@ export function buildRouteProgress(
         nextMunicipality: null,
         stops: [],
         isSpecialTrip: true,
+        hasActiveTrip: true,
       },
       nearestIndex: previousIndex ?? 0,
     };
@@ -207,7 +213,29 @@ export function buildRouteProgress(
       nextMunicipality: nextStop ? nextStop.name : null,
       stops,
       isSpecialTrip: false,
+      hasActiveTrip: true,
     },
     nearestIndex,
+  };
+}
+
+// Placeholder entry for a bus that's registered/known (present in
+// Firebase) but has nothing trackable to show right now — tracker
+// closed, no trip in progress. Used instead of buildRouteProgress() so
+// the Route Planner never turns a bus's last known (now stale) position
+// into an outdated-looking route display; it just says there's no
+// active trip.
+export function buildInactiveEntry(bus: { id: string; label: string }): BusRouteProgress {
+  return {
+    busId: bus.id,
+    label: bus.label,
+    direction: "Unknown",
+    origin: "—",
+    destination: "—",
+    currentMunicipality: "—",
+    nextMunicipality: null,
+    stops: [],
+    isSpecialTrip: false,
+    hasActiveTrip: false,
   };
 }
