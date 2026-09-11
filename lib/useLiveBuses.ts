@@ -60,6 +60,25 @@ export function isBusStopped(bus: { speedKph?: number | null; status?: string })
   return bus.speedKph === 0 || String(bus.status ?? "").toLowerCase() === "stopped";
 }
 
+// A bus counts as "online" (actively tracking right now) once we've
+// heard from its tracker within this many seconds. The hardware pushes
+// GPS every few seconds while genuinely connected, so this stays tight
+// on purpose — anything older almost certainly means the tracker was
+// closed/turned off, not just a slow update cycle.
+export const ONLINE_THRESHOLD_SECONDS = 45;
+
+// Slightly shorter warning threshold — a bus crossing this (but still
+// under ONLINE_THRESHOLD_SECONDS) is still shown, just flagged as
+// "No Signal" rather than fully hidden yet.
+export const NO_SIGNAL_THRESHOLD_SECONDS = 15;
+
+// Single shared definition of "is this bus's tracker open right now" —
+// used by both the Live Tracking map and the Route Planner, so the two
+// pages can never disagree about which buses currently count as active.
+export function isBusOnline(bus: { lastUpdateSecondsAgo?: number }): boolean {
+  return (bus.lastUpdateSecondsAgo ?? Infinity) < ONLINE_THRESHOLD_SECONDS;
+}
+
 export type LiveBusBase = {
   id: string;
   label: string;
@@ -86,6 +105,10 @@ export type LiveBusBase = {
 // that pitfall entirely.
 export type LiveBus = LiveBusBase & {
   lastUpdateMinutesAgo: number;
+  // Seconds-level version of the same thing — the tracker pushes every
+  // few seconds while genuinely connected, so "is this bus's tracker
+  // open right now" needs to be judged in seconds, not minutes.
+  lastUpdateSecondsAgo: number;
 };
 
 type LastSeenMap = Record<string, { signature: string; seenAt: number }>;
@@ -137,10 +160,12 @@ export function useLiveBuses() {
     lastSeenRef.current = loadPersistedLastSeen();
   }
 
-  // Re-render periodically so "Xm ago" keeps advancing even when no new
-  // Firebase update has arrived.
+  // Re-render every couple of seconds so "online right now" status stays
+  // accurate at second-level granularity — the tracker pushes every few
+  // seconds while genuinely connected, so a 30-second-old re-check (the
+  // old interval) was far too coarse to reflect that promptly.
   useEffect(() => {
-    const interval = setInterval(() => setTick((t) => t + 1), 30000);
+    const interval = setInterval(() => setTick((t) => t + 1), 2000);
     return () => clearInterval(interval);
   }, []);
 
@@ -208,11 +233,13 @@ export function useLiveBuses() {
     (bus): LiveBus => ({
       ...bus,
       lastUpdateMinutesAgo: Math.max(0, Math.round((Date.now() - bus.lastUpdateAt) / 60000)),
+      lastUpdateSecondsAgo: Math.max(0, Math.round((Date.now() - bus.lastUpdateAt) / 1000)),
     })
   );
 
   // `tick` isn't read directly but its state change forces this hook to
-  // re-run and recompute lastUpdateMinutesAgo against the current clock.
+  // re-run and recompute lastUpdateMinutesAgo/lastUpdateSecondsAgo
+  // against the current clock.
   void tick;
 
   return { buses, loading };

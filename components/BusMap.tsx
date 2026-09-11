@@ -7,7 +7,7 @@ import { haversineKm } from "@/lib/data";
 import { olongapoToSantaCruzRoute } from "@/lib/routes";
 import type { LatLngTuple } from "leaflet";
 import BusInfoCard from "@/components/BusInfoCard";
-import { useLiveBuses } from "@/lib/useLiveBuses";
+import { useLiveBuses, isBusOnline, NO_SIGNAL_THRESHOLD_SECONDS } from "@/lib/useLiveBuses";
 
 const routePositions = olongapoToSantaCruzRoute as LatLngTuple[];
 const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
@@ -212,9 +212,13 @@ export default function BusMap() {
        {liveBuses
           .filter((bus) => typeof bus.lat === "number" && typeof bus.lng === "number")
           .filter((bus) => !String(bus.status ?? "").toLowerCase().includes("garage"))
-          .filter((bus) => (bus.lastUpdateMinutesAgo ?? 0) < 5)
+          // The tracker pushes every few seconds while genuinely
+          // connected/open, so "is it online right now" is judged in
+          // seconds — 45s of silence means the tracker was closed, not
+          // just a slow news cycle.
+          .filter((bus) => isBusOnline(bus))
           .map((bus) => {
-            const isNoSignal = (bus.lastUpdateMinutesAgo ?? 0) >= 2;
+            const isNoSignal = (bus.lastUpdateSecondsAgo ?? 0) >= NO_SIGNAL_THRESHOLD_SECONDS;
             const isStopped = bus.speedKph === 0 || String(bus.status ?? "").toLowerCase() === "stopped";
             const isSpecialTrip = !!bus.isOnSpecialTrip;
             const label = isSpecialTrip

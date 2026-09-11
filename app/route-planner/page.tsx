@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { useLiveBuses } from "@/lib/useLiveBuses";
+import { useLiveBuses, isBusOnline } from "@/lib/useLiveBuses";
 import { buildRouteProgress } from "@/lib/routePlanner";
 import { IconChevronLeft, IconChevronRight } from "@/components/Icons";
 
@@ -27,7 +27,14 @@ export default function RoutePlannerPage() {
   // a manually-set Firebase field.
   const lastIndexRef = useRef<Record<string, number>>({});
 
-  const routes = buses
+  // Only buses whose tracker is genuinely online right now count as
+  // "active" — the same definition the Live Tracking map uses. A bus
+  // that stopped pushing GPS (trip ended, tracker closed, offline) is
+  // excluded here, which is what makes its route card disappear from
+  // the Route Planner automatically without any extra bookkeeping.
+  const activeBuses = buses.filter(isBusOnline);
+
+  const routes = activeBuses
     .map((bus) => {
       const result = buildRouteProgress(bus, lastIndexRef.current[bus.id]);
       if (!result) return null;
@@ -38,7 +45,7 @@ export default function RoutePlannerPage() {
 
   // Looked up per render so each bus's card can pass its own live
   // lat/lng to its own map instance below.
-  const busById = Object.fromEntries(buses.map((bus) => [bus.id, bus]));
+  const busById = Object.fromEntries(activeBuses.map((bus) => [bus.id, bus]));
 
   if (loading) {
     return (
@@ -51,7 +58,7 @@ export default function RoutePlannerPage() {
   if (routes.length === 0) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-10 text-center text-sm text-slate-400 sm:px-6">
-        No buses are currently online.
+        No active bus trips available.
       </div>
     );
   }
