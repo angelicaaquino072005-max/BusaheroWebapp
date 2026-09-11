@@ -88,6 +88,37 @@ export type LiveBus = LiveBusBase & {
   lastUpdateMinutesAgo: number;
 };
 
+type LastSeenMap = Record<string, { signature: string; seenAt: number }>;
+
+const LAST_SEEN_STORAGE_KEY = "busahero:lastSeenBuses";
+
+// Reads the last-seen-change record from localStorage so it survives
+// page refreshes — without this, a page refresh wipes the in-memory
+// history and every bus currently sitting in Firebase (even one whose
+// tracker has been off for hours) looks "just updated" again, since
+// there's nothing to compare its signature against yet.
+function loadPersistedLastSeen(): LastSeenMap {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(LAST_SEEN_STORAGE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function persistLastSeen(map: LastSeenMap) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(LAST_SEEN_STORAGE_KEY, JSON.stringify(map));
+  } catch {
+    // Ignore write failures (private browsing, storage full) — worst
+    // case we just lose cross-refresh memory, not correctness.
+  }
+}
+
 // Subscribes to /buses in Firebase Realtime Database. The data isn't a
 // flat list of buses — it's grouped one level deeper by direction, e.g.
 // { north: { bus1: {...} }, south: { bus2: {...}, Bus3: {...} } }.
@@ -101,7 +132,10 @@ export function useLiveBuses() {
   const [rawBuses, setRawBuses] = useState<LiveBusBase[]>([]);
   const [loading, setLoading] = useState(true);
   const [tick, setTick] = useState(0);
-  const lastSeenRef = useRef<Record<string, { signature: string; seenAt: number }>>({});
+  const lastSeenRef = useRef<LastSeenMap | null>(null);
+  if (lastSeenRef.current === null) {
+    lastSeenRef.current = loadPersistedLastSeen();
+  }
 
   // Re-render periodically so "Xm ago" keeps advancing even when no new
   // Firebase update has arrived.
@@ -142,9 +176,9 @@ export function useLiveBuses() {
 
         const list: LiveBusBase[] = flatEntries.map(([id, value]: [string, any]): LiveBusBase => {
           const signature = JSON.stringify(value);
-          const previous = lastSeenRef.current[id];
+          const previous = lastSeenRef.current![id];
           const seenAt = previous && previous.signature === signature ? previous.seenAt : now;
-          lastSeenRef.current[id] = { signature, seenAt };
+          lastSeenRef.current![id] = { signature, seenAt };
 
           const { lat, lng } = extractLatLng(value);
           const speedKph = extractSpeedKph(value);
@@ -159,6 +193,8 @@ export function useLiveBuses() {
             isOnSpecialTrip: lat != null && lng != null ? isOnSpecialTrip(lat, lng) : false,
           };
         });
+
+        persistLastSeen(lastSeenRef.current!);
 
         setRawBuses(list);
         setLoading(false);
