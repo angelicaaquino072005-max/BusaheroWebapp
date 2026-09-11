@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Polyline, Tooltip, useMap } from "react-leaflet";
 import L from "leaflet";
 import type { LatLngTuple } from "leaflet";
@@ -144,6 +144,8 @@ function ZoomControls() {
 // it has already passed are marked, the one it's near is highlighted, and
 // the rest stay plain until it reaches them.
 export default function RouteProgressMap({ stops, bus }: RouteProgressMapProps) {
+  const [legendOpen, setLegendOpen] = useState(false);
+
   return (
     <div className="relative h-[420px] w-full overflow-hidden rounded-xl border border-slate-100 sm:h-[560px]">
       <MapContainer
@@ -189,36 +191,46 @@ export default function RouteProgressMap({ stops, bus }: RouteProgressMapProps) 
         <ZoomControls />
       </MapContainer>
 
-      {/* Small floating legend listing every town, so the full corridor
-          list is visible at a glance without leaving the map. */}
-      <div className="absolute right-3 top-3 z-[400] max-h-[85%] w-36 overflow-y-auto rounded-xl border border-slate-200 bg-white/95 p-2 shadow-lg backdrop-blur sm:w-40">
-        <p className="mb-1.5 px-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+      {/* Collapsed by default so it doesn't cover most of a small
+          screen — tap to open the list of towns, tap again to close. */}
+      <div className="absolute right-3 top-3 z-[400]">
+        <button
+          type="button"
+          onClick={() => setLegendOpen((v) => !v)}
+          className="flex items-center gap-1 rounded-full border border-slate-200 bg-white/95 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500 shadow-lg backdrop-blur"
+        >
           Towns
-        </p>
-        <div className="space-y-0.5">
-          {stops.map((stop) => (
-            <div key={stop.id} className="flex items-center gap-1.5 rounded-lg px-1 py-1">
-              <span
-                className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-bold text-white ${
-                  stop.status === "DEPARTED"
-                    ? "bg-emerald-500"
-                    : stop.status === "ARRIVING"
-                    ? "bg-amber-500"
-                    : "bg-slate-300"
-                }`}
-              >
-                {stop.status === "DEPARTED" ? "✓" : ""}
-              </span>
-              <span
-                className={`truncate text-xs ${
-                  stop.status === "UPCOMING" ? "text-slate-400" : "font-medium text-slate-700"
-                }`}
-              >
-                {stop.name}
-              </span>
+          <span className="text-[9px]">{legendOpen ? "▲" : "▼"}</span>
+        </button>
+
+        {legendOpen && (
+          <div className="mt-1.5 max-h-52 w-32 overflow-y-auto rounded-xl border border-slate-200 bg-white/95 p-1.5 shadow-lg backdrop-blur">
+            <div className="space-y-0.5">
+              {stops.map((stop) => (
+                <div key={stop.id} className="flex items-center gap-1.5 rounded-lg px-1 py-0.5">
+                  <span
+                    className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full text-[8px] font-bold text-white ${
+                      stop.status === "DEPARTED"
+                        ? "bg-emerald-500"
+                        : stop.status === "ARRIVING"
+                        ? "bg-amber-500"
+                        : "bg-slate-300"
+                    }`}
+                  >
+                    {stop.status === "DEPARTED" ? "✓" : ""}
+                  </span>
+                  <span
+                    className={`truncate text-[11px] ${
+                      stop.status === "UPCOMING" ? "text-slate-400" : "font-medium text-slate-700"
+                    }`}
+                  >
+                    {stop.name}
+                  </span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
