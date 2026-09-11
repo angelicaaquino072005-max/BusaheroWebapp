@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { IconFileText } from "@/components/Icons";
 import { termsClauses } from "@/lib/termsContent";
 
 const STORAGE_KEY = "busahero_terms_accepted";
@@ -43,85 +42,74 @@ export default function TermsGate() {
   };
 
   return (
-    <div className="fixed inset-0 z-[2100] flex flex-col bg-slate-50">
-      <div className="flex items-center gap-3 border-b border-slate-200 bg-white px-5 py-4 sm:px-6">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50 text-brand">
-          <IconFileText size={20} />
-        </span>
-        <div>
+    <div className="fixed inset-0 z-[2100] flex items-center justify-center bg-slate-900/55 p-4">
+      <div className="flex w-full max-w-md flex-col overflow-hidden rounded-2xl bg-white shadow-2xl sm:max-w-lg">
+        <div className="border-b border-slate-100 px-5 py-4 sm:px-6">
           <h2 className="text-base font-bold text-slate-800">Terms & Conditions</h2>
-          <p className="text-xs text-slate-500">Please review before using BUSahero.</p>
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto px-5 py-5 sm:px-6">
-        <p className="mb-5 text-sm leading-relaxed text-slate-600">
-          By using the BUSahero application, you agree to comply with these Terms and
-          Conditions. If you do not agree with any part of these terms, please
-          discontinue use of the application.
-        </p>
-
-        <div className="space-y-3">
-          {termsClauses.map((c, i) => (
-            <div
-              key={c.title}
-              className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-card"
-            >
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-50 text-brand">
-                <c.icon size={17} />
-              </span>
-              <div className="min-w-0">
-                <h4 className="mb-1 text-sm font-semibold text-slate-800">
-                  {i + 1}. {c.title}
-                </h4>
-                <p className="text-xs leading-relaxed text-slate-500">{c.body}</p>
-              </div>
-            </div>
-          ))}
+          <p className="mt-0.5 text-xs text-slate-500">Please review before using BUSahero.</p>
         </div>
 
-        <p className="mt-4 text-xs text-slate-400">
-          Read the full{" "}
-          <Link href="/terms" className="font-medium text-brand underline">
-            Terms & Conditions
-          </Link>{" "}
-          and{" "}
-          <Link href="/privacy-policy" className="font-medium text-brand underline">
-            Privacy Policy
-          </Link>{" "}
-          anytime from the sidebar.
-        </p>
-      </div>
-
-      <div className="border-t border-slate-200 bg-white px-5 py-4 sm:px-6">
-        <label className="mb-3 flex cursor-pointer items-start gap-2.5 text-sm text-slate-700">
-          <input
-            type="checkbox"
-            checked={checked}
-            onChange={(e) => {
-              setChecked(e.target.checked);
-              if (e.target.checked) setShowNudge(false);
-            }}
-            className="mt-0.5 h-4 w-4 shrink-0 accent-brand"
-          />
-          I have read and agree to the Terms & Conditions and Privacy Policy.
-        </label>
-
-        {showNudge && (
-          <p className="mb-3 text-xs font-medium text-red-500">
-            Please check the box above to continue — agreeing to the Terms is required to
-            use BUSahero.
+        <div className="max-h-[55vh] overflow-y-auto px-5 py-4 sm:px-6">
+          <p className="mb-4 text-sm leading-relaxed text-slate-600">
+            By using the BUSahero application, you agree to comply with these Terms and
+            Conditions. If you do not agree with any part of these terms, please
+            discontinue use of the application.
           </p>
-        )}
 
-        <button
-          onClick={agree}
-          className={`w-full rounded-full py-3 text-sm font-semibold text-white shadow-lg transition-colors ${
-            checked ? "bg-brand hover:bg-brand-dark" : "bg-slate-300"
-          }`}
-        >
-          I Agree & Continue
-        </button>
+          <ol className="space-y-3">
+            {termsClauses.map((c, i) => (
+              <li key={c.title} className="text-sm">
+                <p className="font-semibold text-slate-800">
+                  {i + 1}. {c.title}
+                </p>
+                <p className="mt-0.5 text-xs leading-relaxed text-slate-500">{c.body}</p>
+              </li>
+            ))}
+          </ol>
+
+          <p className="mt-4 text-xs text-slate-400">
+            Read the full{" "}
+            <Link href="/terms" className="font-medium text-brand underline">
+              Terms & Conditions
+            </Link>{" "}
+            and{" "}
+            <Link href="/privacy-policy" className="font-medium text-brand underline">
+              Privacy Policy
+            </Link>{" "}
+            anytime from the sidebar.
+          </p>
+        </div>
+
+        <div className="border-t border-slate-100 px-5 py-4 sm:px-6">
+          <label className="mb-3 flex cursor-pointer items-start gap-2.5 text-xs text-slate-700 sm:text-sm">
+            <input
+              type="checkbox"
+              checked={checked}
+              onChange={(e) => {
+                setChecked(e.target.checked);
+                if (e.target.checked) setShowNudge(false);
+              }}
+              className="mt-0.5 h-4 w-4 shrink-0 accent-brand"
+            />
+            I have read and agree to the Terms & Conditions and Privacy Policy.
+          </label>
+
+          {showNudge && (
+            <p className="mb-3 text-xs font-medium text-red-500">
+              Please check the box above to continue — agreeing to the Terms is required
+              to use BUSahero.
+            </p>
+          )}
+
+          <button
+            onClick={agree}
+            className={`w-full rounded-full py-2.5 text-sm font-semibold text-white shadow-lg transition-colors ${
+              checked ? "bg-brand hover:bg-brand-dark" : "bg-slate-300"
+            }`}
+          >
+            I Agree & Continue
+          </button>
+        </div>
       </div>
     </div>
   );
