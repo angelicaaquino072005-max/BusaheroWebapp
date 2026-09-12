@@ -8,6 +8,7 @@ import { olongapoToSantaCruzRoute } from "@/lib/routes";
 import type { LatLngTuple } from "leaflet";
 import BusInfoCard from "@/components/BusInfoCard";
 import { useLiveBuses, isBusOnline, NO_SIGNAL_THRESHOLD_SECONDS } from "@/lib/useLiveBuses";
+import { findNearestStopIndex, resolveDirection } from "@/lib/routePlanner";
 
 const routePositions = olongapoToSantaCruzRoute as LatLngTuple[];
 const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
@@ -150,6 +151,14 @@ export default function BusMap() {
   const [mapStyle, setMapStyle] = useState<"streets" | "satellite">("streets");
   const { buses: liveBuses, loading: busesLoading } = useLiveBuses();
   const busHeadingRef = useRef({});
+  // Tracks each bus's last known nearest-corridor-stop index, so
+  // direction can be resolved from actual movement — the same shared
+  // logic (and the same localStorage-persisted history) the Route
+  // Planner uses. Without this, Live Tracking would keep trusting the
+  // Firebase folder key alone, which is a hardcoded firmware constant
+  // that never updates — it would permanently disagree with the Route
+  // Planner on any bus doing a round trip.
+  const directionIndexRef = useRef<Record<string, number>>({});
 
   useEffect(() => {
     if (!("geolocation" in navigator)) {
@@ -267,11 +276,23 @@ export default function BusMap() {
               bearing,
             };
 
+            // Movement-based direction, same source of truth the Route
+            // Planner uses — not the raw (static) Firebase folder key.
+            // Special-trip buses skip this entirely, same as
+            // buildRouteProgress does, so a far-off-corridor position
+            // never corrupts the persisted movement history.
+            let resolvedDirection: string | undefined = bus.direction;
+            if (!isSpecialTrip && typeof bus.lat === "number" && typeof bus.lng === "number") {
+              const nearestIndex = findNearestStopIndex(bus.lat, bus.lng);
+              resolvedDirection = resolveDirection(bus, nearestIndex, directionIndexRef.current[bus.id]);
+              directionIndexRef.current[bus.id] = nearestIndex;
+            }
+
             return (
               <Marker
                 key={bus.id}
                 position={[bus.lat, bus.lng]}
-                icon={createBusIcon(label, isStopped, bearing, isNoSignal, bus.direction, isSpecialTrip)}
+                icon={createBusIcon(label, isStopped, bearing, isNoSignal, resolvedDirection, isSpecialTrip)}
                 eventHandlers={{
                   click: () => setSelectedBusId(bus.id),
                 }}

@@ -51,7 +51,7 @@ export type BusRouteProgress = {
   hasActiveTrip: boolean;
 };
 
-function findNearestStopIndex(lat: number, lng: number): number {
+export function findNearestStopIndex(lat: number, lng: number): number {
   let nearestIndex = 0;
   let nearestDist = Infinity;
   corridorStops.forEach((stop, i) => {
