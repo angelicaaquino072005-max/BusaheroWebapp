@@ -218,7 +218,17 @@ export default function BusMap() {
           // just a slow news cycle.
           .filter((bus) => isBusOnline(bus))
           .map((bus) => {
-            const isNoSignal = (bus.lastUpdateSecondsAgo ?? 0) >= NO_SIGNAL_THRESHOLD_SECONDS;
+            // Two independent signals, either one is enough: the
+            // tracker hasn't pushed in a while (time-based), OR the
+            // device itself is actively saying it has no GPS fix right
+            // now — the latter matters because the firmware keeps
+            // sending its 3-second heartbeat (with status: "No Signal")
+            // even while GPS is dead, so a purely time-based check alone
+            // would never catch that case; the bus would keep showing
+            // its last frozen position as if it were still accurate.
+            const reportsNoSignal = String(bus.status ?? "").toLowerCase() === "no signal";
+            const isNoSignal =
+              (bus.lastUpdateSecondsAgo ?? 0) >= NO_SIGNAL_THRESHOLD_SECONDS || reportsNoSignal;
             const isStopped = bus.speedKph === 0 || String(bus.status ?? "").toLowerCase() === "stopped";
             const isSpecialTrip = !!bus.isOnSpecialTrip;
             const label = isSpecialTrip

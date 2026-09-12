@@ -52,6 +52,22 @@ export function extractSpeedKph(value: any): number | null {
   return Number.isFinite(speed) ? speed : null;
 }
 
+// Pulls a genuine server-side write timestamp out of a bus record, if
+// the device's firmware sends one via Firebase's `.sv: "timestamp"`
+// placeholder (which the Firebase server resolves into a real Unix-ms
+// number at write time — reliable, unlike a device-local clock).
+// Returns null for older firmware that doesn't send this yet, so the
+// caller can fall back to change-detection for those buses.
+export function extractUpdatedAt(value: any): number | null {
+  const raw = value?.updatedAt;
+  const ts = raw !== undefined && raw !== null ? Number(raw) : NaN;
+  // Sanity check: a real Unix-ms timestamp is a huge number (13 digits,
+  // year-2001+). This filters out any leftover millis()-uptime values
+  // from firmware that hasn't been updated yet, which would otherwise
+  // look like a tiny (and very wrong) "ms ago" once compared to Date.now().
+  return Number.isFinite(ts) && ts > 1_000_000_000_000 ? ts : null;
+}
+
 // A bus counts as "stopped" if either its live speed reads 0 or the
 // device/backend explicitly reports a "stopped" status. This is checked
 // the same way everywhere a bus's stopped/moving state is shown (map
@@ -146,11 +162,14 @@ function persistLastSeen(map: LastSeenMap) {
 // flat list of buses — it's grouped one level deeper by direction, e.g.
 // { north: { bus1: {...} }, south: { bus2: {...}, Bus3: {...} } }.
 //
-// NOTE on "last update": the device's own `updatedAt` field is not a
-// reliable wall-clock timestamp (GPS trackers commonly send millis()
-// uptime instead of a real Unix time), so we don't use it for display.
-// Instead we watch each bus's raw payload for changes and stamp it with
-// the client's own clock the moment a change is observed.
+// NOTE on "last update": newer firmware sends a genuine Firebase
+// server-side write timestamp (`updatedAt/.sv: "timestamp"`), which is
+// trustworthy and used directly. Older firmware only sends a device
+// uptime counter, which isn't a real wall-clock time — for any bus
+// still on that firmware, we fall back to watching its raw payload for
+// changes and stamping it with the client's own clock the moment a
+// change is observed, persisted to localStorage so that memory
+// survives page refreshes.
 export function useLiveBuses() {
   const [rawBuses, setRawBuses] = useState<LiveBusBase[]>([]);
   const [loading, setLoading] = useState(true);
@@ -200,10 +219,25 @@ export function useLiveBuses() {
         const now = Date.now();
 
         const list: LiveBusBase[] = flatEntries.map(([id, value]: [string, any]): LiveBusBase => {
-          const signature = JSON.stringify(value);
-          const previous = lastSeenRef.current![id];
-          const seenAt = previous && previous.signature === signature ? previous.seenAt : now;
-          lastSeenRef.current![id] = { signature, seenAt };
+          // Prefer the real server timestamp when the firmware sends
+          // one. Only buses still on older firmware (no valid
+          // server-resolved updatedAt) fall through to the
+          // change-detection heuristic below.
+          const serverUpdatedAt = extractUpdatedAt(value);
+
+          let seenAt: number;
+          if (serverUpdatedAt !== null) {
+            seenAt = serverUpdatedAt;
+            // Keep the fallback map's record in sync too, so this bus
+            // transitions cleanly if its firmware ever gets swapped
+            // back or its server timestamp is briefly missing.
+            lastSeenRef.current![id] = { signature: JSON.stringify(value), seenAt };
+          } else {
+            const signature = JSON.stringify(value);
+            const previous = lastSeenRef.current![id];
+            seenAt = previous && previous.signature === signature ? previous.seenAt : now;
+            lastSeenRef.current![id] = { signature, seenAt };
+          }
 
           const { lat, lng } = extractLatLng(value);
           const speedKph = extractSpeedKph(value);
