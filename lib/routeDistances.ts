@@ -201,14 +201,14 @@ export const ZAMBALES_CORRIDOR: RouteStop[] = buildCorridor([
     legKm: 4.0,
   },
   {
-    id: "san-felipe-apostol",
-    name: "Apostol",
+    id: "san-felipe-manglicmot",
+    name: "Manglicmot",
     municipality: "San Felipe",
     legKm: 0.0,
   },
   {
-    id: "san-felipe-manglicmot",
-    name: "Manglicmot",
+    id: "san-felipe-apostol",
+    name: "Apostol",
     municipality: "San Felipe",
     legKm: 0.0,
   },

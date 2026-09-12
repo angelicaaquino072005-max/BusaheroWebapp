@@ -7,8 +7,14 @@ import { getFareBreakdown, formatPeso } from "@/lib/fareCalculator";
 import { TOWN_ROUTES, getDistanceBetween } from "@/lib/routeDistances";
 import { IconBuilding, IconInfo } from "@/components/Icons";
 
-// TOWN_ROUTES gives { id, town } — MunicipalitySelect below expects { id, name }
-const municipalities = TOWN_ROUTES.map((r) => ({ id: r.id, name: r.town }));
+// TOWN_ROUTES gives { id, town, municipality } — MunicipalitySelect below
+// expects { id, name, municipality } so the dropdown can group stops under
+// their municipality (matches the grouped selects on the Fares page).
+const municipalities = TOWN_ROUTES.map((r) => ({
+  id: r.id,
+  name: r.town,
+  municipality: r.municipality,
+}));
 
 function peso(n) {
   return formatPeso(n);
@@ -119,7 +125,30 @@ export default function FareCalculatorPage() {
   );
 }
 
+// municipalities is already ordered Olongapo -> Santa Cruz (from
+// ZAMBALES_CORRIDOR), so grouping just needs to bucket consecutive stops
+// that share a municipality — no separate sort/lookup needed.
+function groupByMunicipality(stops) {
+  const groups = [];
+
+  for (const stop of stops) {
+    const last = groups[groups.length - 1];
+
+    if (last && last.municipality === stop.municipality) {
+      last.stops.push(stop);
+    } else {
+      groups.push({ municipality: stop.municipality, stops: [stop] });
+    }
+  }
+
+  return groups;
+}
+
 function MunicipalitySelect({ label, value, onChange, exclude }) {
+  const groups = groupByMunicipality(
+    municipalities.filter((m) => m.id !== exclude)
+  );
+
   return (
     <div>
       <label className="mb-1.5 block text-xs font-medium text-slate-500">
@@ -133,13 +162,15 @@ function MunicipalitySelect({ label, value, onChange, exclude }) {
           className="w-full bg-transparent text-sm text-slate-700 outline-none"
         >
           <option value="">Select {label}</option>
-          {municipalities
-            .filter((m) => m.id !== exclude)
-            .map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name}
-              </option>
-            ))}
+          {groups.map((group) => (
+            <optgroup key={group.municipality} label={group.municipality}>
+              {group.stops.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
+            </optgroup>
+          ))}
         </select>
       </div>
     </div>
