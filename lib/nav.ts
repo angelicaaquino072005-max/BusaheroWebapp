@@ -2,8 +2,6 @@ import {
   IconMap,
   IconRoute,
   IconWallet,
-  IconFlag,
-  IconEye,
   IconInfo,
   IconShield,
   IconFileText,
@@ -17,13 +15,11 @@ export const primaryNav = [
 ];
 
 export const infoNav = [
-  { href: "/mission", label: "Mission", title: "Mission", icon: IconFlag },
-  { href: "/vision", label: "Vision", title: "Vision", icon: IconEye },
   { href: "/about", label: "About Us", title: "About BUSahero", icon: IconInfo },
 ];
 
 // Not rendered in the sidebar anymore, but the pages themselves still
-// work (linked from the Terms Gate popup, footer, etc.). Kept here only
+// work (still reachable by URL, linked elsewhere, etc.). Kept here only
 // so titleForPath() still shows the right page title in the header.
 export const hiddenNav = [
   { href: "/how-to-use", label: "How to Use", title: "How to Use BUSahero", icon: IconCompass },
