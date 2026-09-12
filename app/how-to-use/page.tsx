@@ -4,7 +4,7 @@ const features = [
   {
     icon: IconMap,
     title: "Live Bus Tracking",
-    summary: "See real-time bus positions on the map as they travel the Olongapo–Zambales corridor.",
+    summary: "See real-time bus positions on the map as they travel the Olongapo–Sta Cruz Zambales corridor.",
     steps: [
       "Open the Live Tracking page (the map icon in your navigation).",
       "Allow location access when prompted, so you can see your own position on the map.",
