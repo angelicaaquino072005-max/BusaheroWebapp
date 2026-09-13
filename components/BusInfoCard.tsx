@@ -25,6 +25,14 @@ function Row({ icon: Icon, iconBg, iconColor, label, value }) {
   );
 }
 
+function formatEtaLabel(etaMinutes) {
+  if (etaMinutes < 1) return "<1 min";
+  const hours = Math.floor(etaMinutes / 60);
+  const mins = etaMinutes % 60;
+  if (hours === 0) return `${mins} min${mins === 1 ? "" : "s"}`;
+  return `${hours}h ${mins}m`;
+}
+
 export default function BusInfoCard({ bus, distanceKm, etaMinutes, onClose }) {
   const isFar = distanceKm != null && distanceKm > 5;
   const hasSpeed = typeof bus.speedKph === "number" && Number.isFinite(bus.speedKph);
@@ -41,7 +49,7 @@ export default function BusInfoCard({ bus, distanceKm, etaMinutes, onClose }) {
 
   const etaLabel =
     etaMinutes != null
-      ? `${etaMinutes} mins`
+      ? formatEtaLabel(etaMinutes)
       : !hasSpeed
       ? "Speed data unavailable"
       : bus.speedKph === 0
