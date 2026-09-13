@@ -88,7 +88,7 @@ export const ZAMBALES_CORRIDOR: RouteStop[] = buildCorridor([
   },
   {
     id: "subic-baraca",
-    name: "Baraca",
+    name: "Baraca (Bus Stop",
     municipality: "Subic",
     legKm: 0.4,
   },
@@ -172,7 +172,7 @@ export const ZAMBALES_CORRIDOR: RouteStop[] = buildCorridor([
   },
   {
     id: "san-marcelino-central",
-    name: "Central",
+    name: "Central (Bus Stop)",
     municipality: "San Marcelino",
     legKm: 0.4,
   },
@@ -370,7 +370,7 @@ export const ZAMBALES_CORRIDOR: RouteStop[] = buildCorridor([
   },
   {
     id: "botolan-agora",
-    name: "Agora",
+    name: "Agora (Bus Stop)",
     municipality: "Botolan",
     legKm: 0.5,
   },
