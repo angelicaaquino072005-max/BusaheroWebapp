@@ -108,7 +108,7 @@ const userIcon = L.divIcon({
 // a white box behind it.
 const busStopIcon = L.divIcon({
   className: "",
-  html: `<img src="/bus-stop-icon.png" class="bus-stop-pin" style="width:28px;height:31px;" />`,
+  html: `<img src="/bus-stop-icon.png" class="bus-stop-pin" />`,
   iconSize: [28, 31],
   iconAnchor: [14, 16],
   popupAnchor: [0, -16],
@@ -361,7 +361,8 @@ export default function BusMap() {
 
       {/* Bus Stops toggle + legend, stacked so they never overlap
           regardless of screen size. */}
-      <div className="flex items-center justify-between gap-2 rounded-full border border-slate-200 bg-white/95 py-1.5 pl-2 pr-3 shadow-lg backdrop-blur">
+      <div className="absolute right-3 top-3 z-[400] flex w-36 flex-col items-stretch gap-2 sm:right-4 sm:top-4 sm:w-40">
+        <div className="flex items-center justify-between gap-2 rounded-full border border-slate-200 bg-white/95 py-1.5 pl-2 pr-3 shadow-lg backdrop-blur">
           <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-700">
             <img src="/bus-stop-icon.png" alt="" className="h-6 w-auto" />
             Bus Stops
@@ -423,6 +424,6 @@ export default function BusMap() {
           </div>
         </div>
       </div>
-    
+    </div>
   );
 }
