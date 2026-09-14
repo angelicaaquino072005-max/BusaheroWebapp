@@ -108,7 +108,7 @@ const userIcon = L.divIcon({
 // a white box behind it.
 const busStopIcon = L.divIcon({
   className: "",
-  html: `<img src="/bus-stop-icon.png" class="bus-stop-pin" />`,
+  html: `<img src="/bus-stop-icon.png" class="bus-stop-pin" style="width:28px;height:31px;" />`,
   iconSize: [28, 31],
   iconAnchor: [14, 16],
   popupAnchor: [0, -16],
@@ -361,7 +361,7 @@ export default function BusMap() {
 
       {/* Bus Stops toggle + legend, stacked so they never overlap
           regardless of screen size. */}
-      <div className="absolute right-3 top-3 z-[400] flex w-36 flex-col items-stretch gap-2 sm:right-4 sm:top-4 sm:w-40">
+      <div className="absolute right-3 top-3 z-[400] flex w-44 flex-col items-stretch gap-2 sm:right-4 sm:top-4 sm:w-48">
         <div className="flex items-center justify-between gap-2 rounded-full border border-slate-200 bg-white/95 py-1.5 pl-2 pr-3 shadow-lg backdrop-blur">
           <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-700">
             <img src="/bus-stop-icon.png" alt="" className="h-6 w-auto" />
@@ -373,13 +373,13 @@ export default function BusMap() {
             aria-checked={showBusStops}
             aria-label="Toggle bus stop markers"
             onClick={() => setShowBusStops((v) => !v)}
-            className={`relative h-5 w-9 shrink-0 rounded-full border transition-colors ${
+            className={`relative h-5 w-8 shrink-0 rounded-full border transition-colors ${
               showBusStops ? "border-brand bg-brand" : "border-slate-300 bg-slate-200"
             }`}
           >
             <span
               className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
-                showBusStops ? "translate-x-4" : "translate-x-0.5"
+                showBusStops ? "translate-x-3.5" : "translate-x-0.5"
               }`}
             />
           </button>
