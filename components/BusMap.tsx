@@ -108,7 +108,7 @@ const userIcon = L.divIcon({
 // a white box behind it.
 const busStopIcon = L.divIcon({
   className: "",
-  html: `<img src="/bus-stop-icon.png" class="bus-stop-pin" />`,
+  html: `<img src="/bus-stop-icon.png" class="bus-stop-pin" style="width:28px;height:31px;" />`,
   iconSize: [28, 31],
   iconAnchor: [14, 16],
   popupAnchor: [0, -16],
