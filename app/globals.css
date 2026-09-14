@@ -66,18 +66,17 @@ body {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
-/* Static bus-stop pin, toggled on/off from the Live Tracking map. */
+/* Static bus-stop pin, toggled on/off from the Live Tracking map.
+   The rounded-square badge + blue color are drawn in the SVG itself;
+   this just adds the drop shadow. */
 .bus-stop-pin {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 999px;
-  background: #0d9488;
-  border: 2px solid white;
-  box-shadow: 0 2px 5px rgba(15, 23, 42, 0.35);
-  font-size: 13px;
+  filter: drop-shadow(0 2px 4px rgba(15, 23, 42, 0.35));
+}
+
+.bus-stop-pin svg {
+  width: 30px;
+  height: 30px;
 }
 
 @keyframes location-pulse {

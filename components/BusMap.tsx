@@ -103,12 +103,25 @@ const userIcon = L.divIcon({
 });
 
 // Same for every stop, so this is built once rather than per-marker.
+// A simple front-view bus glyph inside a rounded-square badge, matching
+// the icon style used for bus stops in the mobile app.
 const busStopIcon = L.divIcon({
   className: "",
-  html: `<div class="bus-stop-pin">🚌</div>`,
-  iconSize: [28, 28],
-  iconAnchor: [14, 26],
-  popupAnchor: [0, -24],
+  html: `
+    <div class="bus-stop-pin">
+      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="62" height="62" rx="16" fill="#2f7fd1" />
+        <rect x="25" y="11" width="14" height="4" rx="2" fill="white" />
+        <path d="M20 17 h24 a7 7 0 0 1 7 7 v16 a5 5 0 0 1 -5 5 h-28 a5 5 0 0 1 -5 -5 v-16 a7 7 0 0 1 7 -7 z" fill="white" />
+        <rect x="24" y="24" width="16" height="12" rx="2.5" fill="#2f7fd1" />
+        <circle cx="23" cy="48" r="5.5" fill="white" />
+        <circle cx="41" cy="48" r="5.5" fill="white" />
+      </svg>
+    </div>
+  `,
+  iconSize: [30, 30],
+  iconAnchor: [15, 28],
+  popupAnchor: [0, -26],
 });
 
 function ZoomControls({
