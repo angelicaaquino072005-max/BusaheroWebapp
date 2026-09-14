@@ -162,7 +162,7 @@ export default function BusMap() {
   const [userLocation, setUserLocation] = useState(null);
   const [locationError, setLocationError] = useState(null);
   const [mapStyle, setMapStyle] = useState<"streets" | "satellite">("streets");
-  const [showBusStops, setShowBusStops] = useState(true);
+  const [showBusStops, setShowBusStops] = useState(false);
   const { buses: liveBuses, loading: busesLoading } = useLiveBuses();
   const busHeadingRef = useRef({});
   // Tracks each bus's last known nearest-corridor-stop index, so
