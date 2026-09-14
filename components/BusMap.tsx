@@ -324,7 +324,13 @@ export default function BusMap() {
         {showBusStops &&
           busStops.map((stop) => (
             <Marker key={stop.id} position={[stop.lat, stop.lng]} icon={busStopIcon}>
-              <Tooltip direction="top" offset={[0, -22]} opacity={1}>
+              <Tooltip
+                permanent
+                direction="top"
+                offset={[0, -22]}
+                opacity={1}
+                className="bus-stop-label"
+              >
                 {stop.name}
               </Tooltip>
             </Marker>
@@ -373,13 +379,13 @@ export default function BusMap() {
             aria-checked={showBusStops}
             aria-label="Toggle bus stop markers"
             onClick={() => setShowBusStops((v) => !v)}
-            className={`relative h-5 w-8 shrink-0 rounded-full border transition-colors ${
+            className={`inline-flex h-5 w-8 shrink-0 items-center rounded-full border px-0.5 transition-colors ${
               showBusStops ? "border-brand bg-brand" : "border-slate-300 bg-slate-200"
             }`}
           >
             <span
-              className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
-                showBusStops ? "translate-x-3.5" : "translate-x-0.5"
+              className={`h-4 w-4 rounded-full bg-white shadow transition-transform ${
+                showBusStops ? "translate-x-2.5" : "translate-x-0"
               }`}
             />
           </button>
