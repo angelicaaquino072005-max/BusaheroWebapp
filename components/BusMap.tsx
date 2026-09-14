@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Polyline, Tooltip, useMap } from "react-leaflet";
 import L from "leaflet";
 import { haversineKm } from "@/lib/data";
 import { olongapoToSantaCruzRoute } from "@/lib/routes";
+import { busStops } from "@/lib/busStops";
 import type { LatLngTuple } from "leaflet";
 import BusInfoCard from "@/components/BusInfoCard";
 import { useLiveBuses, isBusOnline, NO_SIGNAL_THRESHOLD_SECONDS } from "@/lib/useLiveBuses";
@@ -101,6 +102,15 @@ const userIcon = L.divIcon({
   iconAnchor: [17, 17],
 });
 
+// Same for every stop, so this is built once rather than per-marker.
+const busStopIcon = L.divIcon({
+  className: "",
+  html: `<div class="bus-stop-pin">🚌</div>`,
+  iconSize: [28, 28],
+  iconAnchor: [14, 26],
+  popupAnchor: [0, -24],
+});
+
 function ZoomControls({
   mapStyle,
   onToggleStyle,
@@ -149,6 +159,7 @@ export default function BusMap() {
   const [userLocation, setUserLocation] = useState(null);
   const [locationError, setLocationError] = useState(null);
   const [mapStyle, setMapStyle] = useState<"streets" | "satellite">("streets");
+  const [showBusStops, setShowBusStops] = useState(true);
   const { buses: liveBuses, loading: busesLoading } = useLiveBuses();
   const busHeadingRef = useRef({});
   // Tracks each bus's last known nearest-corridor-stop index, so
@@ -159,7 +170,6 @@ export default function BusMap() {
   // that never updates — it would permanently disagree with the Route
   // Planner on any bus doing a round trip.
   const directionIndexRef = useRef<Record<string, number>>({});
-
   useEffect(() => {
     if (!("geolocation" in navigator)) {
       setLocationError("Geolocation is not supported on this device.");
@@ -308,6 +318,15 @@ export default function BusMap() {
           </Marker>
         )}
 
+        {showBusStops &&
+          busStops.map((stop) => (
+            <Marker key={stop.id} position={[stop.lat, stop.lng]} icon={busStopIcon}>
+              <Tooltip direction="top" offset={[0, -22]} opacity={1}>
+                {stop.name}
+              </Tooltip>
+            </Marker>
+          ))}
+
         <ZoomControls
           mapStyle={mapStyle}
           onToggleStyle={() =>
@@ -337,41 +356,67 @@ export default function BusMap() {
         </div>
       )}
 
-      {/* Legend explaining what each bus pill's border color and
-          direction chip mean. */}
-      <div className="absolute right-3 top-3 z-[400] w-36 rounded-xl border border-slate-200 bg-white/95 p-2.5 text-[11px] shadow-lg backdrop-blur sm:right-4 sm:top-4 sm:w-40">
-        <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-          Legend
-        </p>
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-2">
-            <span className="h-3 w-3 shrink-0 rounded-full border-2 border-[#2563eb] bg-white" />
-            <span className="text-slate-600">Moving</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="h-3 w-3 shrink-0 rounded-full border-2 border-[#dc2626] bg-white" />
-            <span className="text-slate-600">Stopped</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="h-3 w-3 shrink-0 rounded-full border-2 border-dashed border-[#64748b] bg-slate-100" />
-            <span className="text-slate-600">No Signal</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="h-3 w-3 shrink-0 rounded-full border-2 border-[#7c3aed] bg-white" />
-            <span className="text-slate-600">On Special Trip</span>
-          </div>
-          <div className="my-1.5 border-t border-slate-100" />
-          <div className="flex items-center gap-2">
-            <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#2563eb] text-[8px] text-white">
-              ▲
-            </span>
-            <span className="text-slate-600">Northbound</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#f97316] text-[8px] text-white">
-              ▼
-            </span>
-            <span className="text-slate-600">Southbound</span>
+      {/* Bus Stops toggle + legend, stacked so they never overlap
+          regardless of screen size. */}
+      <div className="absolute right-3 top-3 z-[400] flex w-36 flex-col items-stretch gap-2 sm:right-4 sm:top-4 sm:w-40">
+        <div className="flex items-center justify-between gap-2 rounded-full border border-slate-200 bg-white/95 px-3 py-2 shadow-lg backdrop-blur">
+          <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-700">
+            🚌 Bus Stops
+          </span>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={showBusStops}
+            aria-label="Toggle bus stop markers"
+            onClick={() => setShowBusStops((v) => !v)}
+            className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
+              showBusStops ? "bg-brand" : "bg-slate-300"
+            }`}
+          >
+            <span
+              className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
+                showBusStops ? "translate-x-4" : "translate-x-0.5"
+              }`}
+            />
+          </button>
+        </div>
+
+        {/* Legend explaining what each bus pill's border color and
+            direction chip mean. */}
+        <div className="rounded-xl border border-slate-200 bg-white/95 p-2.5 text-[11px] shadow-lg backdrop-blur">
+          <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+            Legend
+          </p>
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <span className="h-3 w-3 shrink-0 rounded-full border-2 border-[#2563eb] bg-white" />
+              <span className="text-slate-600">Moving</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="h-3 w-3 shrink-0 rounded-full border-2 border-[#dc2626] bg-white" />
+              <span className="text-slate-600">Stopped</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="h-3 w-3 shrink-0 rounded-full border-2 border-dashed border-[#64748b] bg-slate-100" />
+              <span className="text-slate-600">No Signal</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="h-3 w-3 shrink-0 rounded-full border-2 border-[#7c3aed] bg-white" />
+              <span className="text-slate-600">On Special Trip</span>
+            </div>
+            <div className="my-1.5 border-t border-slate-100" />
+            <div className="flex items-center gap-2">
+              <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#2563eb] text-[8px] text-white">
+                ▲
+              </span>
+              <span className="text-slate-600">Northbound</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#f97316] text-[8px] text-white">
+                ▼
+              </span>
+              <span className="text-slate-600">Southbound</span>
+            </div>
           </div>
         </div>
       </div>
