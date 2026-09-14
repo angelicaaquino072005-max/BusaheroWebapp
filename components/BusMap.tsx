@@ -359,31 +359,45 @@ export default function BusMap() {
         </div>
       )}
 
-      {/* Bus Stops toggle + legend, stacked so they never overlap
-          regardless of screen size. */}
-      <div className="absolute right-3 top-3 z-[400] flex w-44 flex-col items-stretch gap-2 sm:right-4 sm:top-4 sm:w-48">
-        <div className="flex items-center justify-between gap-2 rounded-full border border-slate-200 bg-white/95 py-1.5 pl-2 pr-3 shadow-lg backdrop-blur">
-          <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-700">
-            <img src="/bus-stop-icon.png" alt="" className="h-6 w-auto" />
-            Bus Stops
-          </span>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={showBusStops}
-            aria-label="Toggle bus stop markers"
-            onClick={() => setShowBusStops((v) => !v)}
-            className={`relative h-5 w-8 shrink-0 rounded-full border transition-colors ${
-              showBusStops ? "border-brand bg-brand" : "border-slate-300 bg-slate-200"
-            }`}
-          >
-            <span
-              className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
-                showBusStops ? "translate-x-3.5" : "translate-x-0.5"
-              }`}
-            />
-          </button>
-        </div>
+      {/* Bus Stops toggle */}
+<div className="absolute right-3 top-3 z-[400] sm:right-4 sm:top-4">
+  <div className="flex h-10 w-44 items-center rounded-full border border-slate-200 bg-white/95 px-3 shadow-lg backdrop-blur sm:w-48">
+    
+    {/* Label */}
+    <div className="flex min-w-0 flex-1 items-center gap-1.5">
+      <img
+        src="/bus-stop-icon.png"
+        alt=""
+        className="h-6 w-6 shrink-0 object-contain"
+      />
+
+      <span className="truncate text-xs font-semibold text-slate-700">
+        Bus Stops
+      </span>
+    </div>
+
+    {/* Toggle */}
+    <button
+      type="button"
+      role="switch"
+      aria-checked={showBusStops}
+      aria-label="Toggle bus stop markers"
+      onClick={() => setShowBusStops((v) => !v)}
+      className={`relative h-6 w-11 shrink-0 rounded-full border transition-colors duration-200 ${
+        showBusStops
+          ? "border-brand bg-brand"
+          : "border-slate-300 bg-slate-200"
+      }`}
+    >
+      <span
+        className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200 ${
+          showBusStops ? "translate-x-5" : "translate-x-0"
+        }`}
+      />
+    </button>
+
+  </div>
+</div>
 
         {/* Legend explaining what each bus pill's border color and
             direction chip mean. */}
@@ -424,6 +438,5 @@ export default function BusMap() {
           </div>
         </div>
       </div>
-    </div>
   );
 }
